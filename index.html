@@ -1,0 +1,1105 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#3b2a20">
+<title>暖暖小食堂</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Huninn&family=Zen+Maru+Gothic:wght@500;700;900&display=swap">
+<style>
+/* 版面：全螢幕遊戲；選單是暖橘牆面上的奶油色貼紙按鈕，遊戲畫面全部畫在畫布上 */
+:root {
+  --ink: #5a3e2e; --cream: #fff8ec; --cream-2: #f6e6cc; --tomato: #e34b3f; --mustard: #f2b833; --teal: #3f9ea0; --sky: #3f9be0; --brown: #7a5236;
+  --f: "Huninn", "Zen Maru Gothic", "PingFang TC", "Microsoft JhengHei", sans-serif;
+  --fn: "Zen Maru Gothic", "Huninn", ui-rounded, sans-serif;
+  color-scheme: light;
+}
+[hidden] { display: none !important; }
+html { height: 100%; box-sizing: border-box; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); background: #3b2a20; }
+*, *::before, *::after { box-sizing: inherit; }
+body { height: 100%; margin: 0; background: #3b2a20; color: var(--ink); font-family: var(--f); overflow: hidden; -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; }
+button { font-family: inherit; color: inherit; cursor: pointer; touch-action: manipulation; }
+button:focus-visible { outline: 3px solid var(--mustard); outline-offset: 2px; }
+#app { position: relative; height: 100%; }
+.scr { position: absolute; inset: 0; overflow-y: auto; display: flex; flex-direction: column; align-items: center; gap: 16px; padding-block: 26px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  background: repeating-linear-gradient(90deg, #f6d9a8 0 26px, #efc98e 26px 52px); }
+.logo { margin: 0; text-align: center; font: 900 clamp(40px, 12vw, 64px)/1.05 var(--fn); color: #fff8ec; -webkit-text-stroke: 9px var(--tomato); paint-order: stroke fill; filter: drop-shadow(0 5px 0 var(--ink)); letter-spacing: .04em; }
+.tag { margin: 0; text-align: center; font-size: 15px; max-width: 22em; line-height: 1.6; text-wrap: balance; }
+#tArt { width: min(340px, 100%); height: auto; aspect-ratio: 340 / 220; }
+.modes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; width: min(420px, 100%); }
+.mode { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; text-align: left; padding: 12px 14px; border-radius: 20px; border: 3px solid var(--ink); background: var(--cream); box-shadow: 0 5px 0 var(--ink); min-width: 0; }
+.mode b { font-size: 19px; } .mode small { font-size: 12.5px; color: #8a6a52; line-height: 1.45; }
+.mode.solo { background: #ffe39a; } .mode.vs { background: #ffc7b9; } .mode.coop { background: #c9ecd0; } .mode.net { background: #c6e3fb; }
+.mode:active, .btn:active { transform: translateY(3px); box-shadow: 0 2px 0 var(--ink); }
+.btn { padding: 11px 18px; border-radius: 999px; border: 3px solid var(--ink); background: var(--mustard); box-shadow: 0 4px 0 var(--ink); font-size: 17px; }
+.btn.alt { background: var(--cream); }
+.btn.sm { padding: 5px 14px; font-size: 14px; box-shadow: 0 3px 0 var(--ink); }
+.bar { display: flex; align-items: center; gap: 10px; width: min(560px, 100%); }
+.bar h2 { margin: 0; flex: 1; font-size: 22px; }
+.chip { padding: 4px 12px; border-radius: 999px; background: var(--cream); border: 2.5px solid var(--ink); font: 700 15px var(--fn); font-variant-numeric: tabular-nums; }
+.ibtn { width: 42px; height: 42px; border-radius: 14px; border: 3px solid var(--ink); background: var(--cream); box-shadow: 0 3px 0 var(--ink); font-size: 18px; display: grid; place-items: center; padding: 0; }
+#restTabs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: min(560px, 100%); }
+.rt { display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; border-radius: 18px; border: 3px solid var(--ink); background: var(--cream); text-align: left; }
+.rt b { font-size: 17px; } .rt small { font-size: 12px; color: #8a6a52; }
+.rt.on { background: var(--mustard); } .rt.lock { opacity: .55; }
+#levels { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; width: min(560px, 100%); }
+.lv { position: relative; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 10px 6px 8px; border-radius: 18px; border: 3px solid var(--ink); background: var(--cream); box-shadow: 0 4px 0 var(--ink); }
+.lv .num { position: absolute; top: 6px; left: 10px; font: 900 20px var(--fn); color: var(--tomato); }
+.lv canvas { width: 140px; height: 50px; }
+.lv .st i { font-style: normal; font-size: 18px; color: #d9c7ac; } .lv .st i.on { color: #f2b833; }
+.lv small { font-size: 12px; color: #8a6a52; }
+.lv.lock { opacity: .5; }
+#online .card { width: min(420px, 100%); background: var(--cream); border: 3px solid var(--ink); border-radius: 22px; box-shadow: 0 5px 0 var(--ink); padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+#oStatus { margin: 0; font-size: 15px; line-height: 1.7; }
+.code { font: 900 30px var(--fn); letter-spacing: .2em; color: var(--tomato); }
+.join { display: flex; gap: 8px; }
+#oCode { flex: 1; min-width: 0; font: 700 22px var(--fn); letter-spacing: .3em; padding: 8px 12px; border-radius: 14px; border: 3px solid var(--ink); text-align: center; background: #fff; color: var(--ink); }
+.inv { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0; }
+.pulse { animation: pulse 1.2s infinite; }
+@keyframes pulse { 50% { transform: scale(1.06); } }
+.hint { margin: 0; font-size: 13.5px; color: #8a6a52; line-height: 1.6; }
+
+#game { position: absolute; inset: 0; background: #3b2a20; }
+#cv { display: block; touch-action: none; }
+#bPause { position: absolute; top: 4px; right: max(8px, env(safe-area-inset-right, 0px)); width: 40px; height: 38px; border-radius: 12px; border: 2.5px solid var(--ink); background: var(--cream); font-size: 16px; z-index: 3; opacity: .92; }
+#mid { position: absolute; left: 0; right: 0; top: calc(50% - 22px); height: 44px; display: flex; align-items: center; gap: 8px; padding-left: max(12px, env(safe-area-inset-left, 0px)); padding-right: max(12px, env(safe-area-inset-right, 0px)); background: var(--brown); color: #fff4dc; z-index: 3; }
+#midTxt { flex: 1; min-width: 0; font-size: 14px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#mid button { border: 2px solid var(--ink); border-radius: 999px; background: var(--cream); padding: 4px 12px; font-size: 13px; color: var(--ink); }
+#midBtns { display: flex; gap: 6px; }
+
+#modal { position: absolute; inset: 0; z-index: 20; display: grid; place-items: center; background: rgba(40,25,15,0.55); padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+#modalBox { width: min(400px, 100%); max-height: 88%; overflow-y: auto; background: var(--cream); border: 3px solid var(--ink); border-radius: 24px; box-shadow: 0 6px 0 var(--ink); padding: 18px; display: flex; flex-direction: column; gap: 12px; animation: pop .3s cubic-bezier(.2,1.5,.4,1) both; }
+#modalBox h2 { margin: 0; font-size: 24px; text-align: center; }
+@keyframes pop { from { transform: scale(.85); opacity: 0; } }
+.mbtns { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.stats span { display: flex; flex-direction: column; align-items: center; padding: 6px; background: #fff; border-radius: 14px; border: 2px solid var(--cream-2); font-size: 12px; color: #8a6a52; }
+.stats b { font: 800 19px var(--fn); color: var(--ink); font-variant-numeric: tabular-nums; }
+.rows { display: flex; flex-direction: column; gap: 8px; }
+.row { display: flex; align-items: center; gap: 10px; padding: 8px 10px; background: #fff; border-radius: 14px; border: 2px solid var(--cream-2); }
+.row > div { flex: 1; min-width: 0; display: flex; flex-direction: column; } .row small { font-size: 12.5px; color: #8a6a52; }
+.lvl { font: 700 13px var(--fn); color: var(--teal); }
+.toast { position: absolute; z-index: 30; left: 50%; top: 18%; transform: translateX(-50%); width: max-content; max-width: calc(100% - 40px); padding: 8px 16px; border-radius: 999px; border: 3px solid var(--ink); background: var(--cream); box-shadow: 0 3px 0 var(--ink); font-size: 15px; pointer-events: none; animation: tin .25s both; }
+@keyframes tin { from { opacity: 0; transform: translate(-50%, -8px); } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; } }
+</style>
+</head>
+<body>
+<div id="app">
+  <section id="title" class="scr">
+    <h1 class="logo">暖暖小食堂</h1>
+    <canvas id="tArt" width="340" height="220"></canvas>
+    <p class="tag">客人排隊點餐，你負責烤肉、煎蛋、組盤、出餐。一個人手忙腳亂，兩個人更熱鬧。</p>
+    <div class="modes">
+      <button class="mode solo" data-mode="solo"><b>單人遊戲</b><small>一個人顧整個櫃檯</small></button>
+      <button class="mode vs" data-mode="vs"><b>同機對戰</b><small>手機平放在桌上，上下各一間店，比誰賺得多</small></button>
+      <button class="mode coop" data-mode="coop"><b>同機合作</b><small>兩個人一起點同一個廚房，客人更多</small></button>
+      <button class="mode net" data-mode="net"><b>連線合作</b><small>傳邀請連結給朋友，兩支手機一起顧店</small></button>
+    </div>
+    <button class="btn alt sm" id="bSound">音效：開</button>
+  </section>
+
+  <section id="select" class="scr" hidden>
+    <div class="bar"><button class="ibtn" id="bBack" aria-label="返回">‹</button><h2 id="selMode">單人</h2><span class="chip">$ <b id="selCoins">0</b></span><button class="btn sm" id="bShop">升級</button></div>
+    <div id="restTabs"></div>
+    <div id="levels"></div>
+  </section>
+
+  <section id="online" class="scr" hidden>
+    <div class="bar"><button class="ibtn" id="oBack" aria-label="返回">‹</button><h2>連線合作</h2></div>
+    <div class="card">
+      <p id="oStatus"></p>
+      <button class="btn" id="bHost">開房間</button>
+      <div class="join"><input id="oCode" autocapitalize="characters" autocomplete="off" maxlength="5" placeholder="房號" aria-label="五碼房號"><button class="btn alt" id="bJoin">加入房間</button></div>
+      <p class="hint">不用帳號，只要有這個網址就能一起玩。主持人開房間後分享邀請連結；遊戲由主持人的手機計算，隊友的點擊會即時傳過去。兩支手機都要保持畫面開著。</p>
+    </div>
+  </section>
+
+  <section id="game" hidden>
+    <canvas id="cv" aria-label="廚房"></canvas>
+    <button id="bPause" aria-label="暫停">Ⅱ</button>
+    <div id="mid" hidden><button id="bPause2" aria-label="暫停">Ⅱ</button><span id="midTxt"></span><div id="midBtns" hidden><button id="bAgain">再來一局</button><button id="bQuit">離開</button></div></div>
+  </section>
+
+  <div id="modal" hidden><div id="modalBox"></div></div>
+  <div id="toast" class="toast" hidden></div>
+</div>
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script>
+/* 模組 1／6：資料 — 兩間餐廳的工作站與菜色、十二個關卡、升級項目、顧客角色、櫃檯版面 */
+(function () {
+'use strict';
+const LC = window.LC = window.LC || {};
+LC.KW = 720; LC.KH = 900;
+
+/* 櫃檯版面（邏輯座標 720×900）。兩間餐廳共用位置，內容由設定決定 */
+LC.LAYOUT = {
+  drink: { x: 12, y: 360, w: 150, h: 205 },
+  rack: { x: 172, y: 360, w: 150, h: 205 },
+  cook1: { x: 332, y: 360, w: 170, h: 205 },
+  plates: { x: 512, y: 360, w: 196, h: 305 },
+  cook2: { x: 12, y: 580, w: 222, h: 150 },
+  box2a: { x: 12, y: 742, w: 108, h: 136 },
+  box2b: { x: 126, y: 742, w: 108, h: 136 },
+  box1: { x: 332, y: 580, w: 170, h: 150 },
+  trash: { x: 244, y: 742, w: 78, h: 136 },
+  extra: { x: 332, y: 742, w: 170, h: 136 },
+  base: { x: 512, y: 680, w: 94, h: 96 },
+  add1: { x: 614, y: 680, w: 94, h: 96 },
+  add2: { x: 512, y: 784, w: 94, h: 96 },
+  add3: { x: 614, y: 784, w: 94, h: 96 },
+};
+
+LC.REST = {
+  burger: {
+    key: 'burger', n: '森林漢堡屋', sub: '漢堡、薯條、汽水', wall: '#f6d9a8', wall2: '#efc98e', counter: '#d9534a', counter2: '#b8433b', top: '#f4ece0', accent: '#f2b833',
+    drink: { item: 'soda', fill: 3.4 },
+    cook1: { raw: 'patty_raw', out: 'patty', cook: 4.2, burn: 9.5, n: 3, name: '烤架' },
+    cook2: { types: [{ raw: 'fries_raw', out: 'fries', box: 'box2a' }, { raw: 'nug_raw', out: 'nug', box: 'box2b' }], cook: 3.8, burn: 11, n: 2, name: '炸鍋' },
+    box1: 'patty_raw', base: 'bun',
+    adds: [{ item: 'cheese', needs: 'patty', role: 'add1' }, { item: 'lettuce', needs: 'patty', role: 'add2' }, { item: 'tomato', needs: 'patty', role: 'add3' }],
+    dishes: {
+      b: { n: '漢堡', comps: ['bun', 'patty'], price: 10 },
+      bc: { n: '起司堡', comps: ['bun', 'patty', 'cheese'], price: 14 },
+      bcl: { n: '豪華堡', comps: ['bun', 'patty', 'cheese', 'lettuce'], price: 19 },
+      bt: { n: '番茄堡', comps: ['bun', 'patty', 'lettuce', 'tomato'], price: 18 },
+      soda: { n: '汽水', from: 'drink', price: 5 },
+      fries: { n: '薯條', from: 'rack', price: 7 },
+      nug: { n: '雞塊', from: 'rack', price: 8 },
+    },
+    levels: [
+      { menu: ['b', 'soda'], dur: 90, pat: 34, gap: [2.5, 4.5], items: [1, 2], target: 150, tip: '點肉餅箱放上烤架，烤好點一下就會疊到麵包上，再點盤子送出。' },
+      { menu: ['b', 'bc', 'soda'], dur: 95, pat: 32, gap: [2.2, 4.2], items: [1, 2], target: 190, tip: '起司會加在第一個有肉的漢堡上。' },
+      { menu: ['b', 'bc', 'soda', 'fries'], dur: 100, pat: 32, gap: [2, 4], items: [1, 3], target: 220, tip: '炸好的薯條若有人點會直接送出，沒人點就先放上架。' },
+      { menu: ['bc', 'bcl', 'soda', 'fries'], dur: 105, pat: 30, gap: [2, 3.6], items: [1, 3], target: 240, tip: '豪華堡要起司和生菜。' },
+      { menu: ['b', 'bc', 'bcl', 'soda', 'fries', 'nug'], dur: 110, pat: 30, gap: [1.8, 3.4], items: [2, 3], target: 260, tip: '雞塊和薯條共用炸鍋。' },
+      { menu: ['bc', 'bcl', 'bt', 'soda', 'fries', 'nug'], dur: 120, pat: 28, gap: [1.6, 3], items: [2, 3], target: 280, tip: '午餐尖峰！善用連擊拿獎勵。' },
+    ],
+  },
+  omu: {
+    key: 'omu', n: '暖暖洋食屋', sub: '蛋包飯、咖哩、炸蝦', wall: '#d7ecef', wall2: '#c2e0e5', counter: '#3f9ea0', counter2: '#2f8183', top: '#f7f2e8', accent: '#f29b4a',
+    drink: { item: 'lemon', fill: 3.2 },
+    cook1: { raw: 'egg_raw', out: 'omelette', cook: 4, burn: 9, n: 2, name: '煎鍋', not: ['omelette'] },
+    cook2: { types: [{ raw: 'shrimp_raw', out: 'shrimp', box: 'box2a' }, { raw: 'croq_raw', out: 'croq', box: 'box2b' }], cook: 4.2, burn: 11, n: 2, name: '炸鍋' },
+    box1: 'egg_raw', base: 'rice',
+    adds: [{ item: 'ketchup', needs: 'omelette', not: ['curry'], role: 'add1' }, { item: 'curry', needs: 'rice', not: ['ketchup'], role: 'add2' }, { item: 'cheese', needs: 'omelette', role: 'add3' }],
+    dishes: {
+      o: { n: '蛋包飯', comps: ['rice', 'omelette', 'ketchup'], price: 16 },
+      c: { n: '咖哩飯', comps: ['rice', 'curry'], price: 14 },
+      oc: { n: '咖哩蛋包飯', comps: ['rice', 'omelette', 'curry'], price: 21 },
+      oz: { n: '起司蛋包飯', comps: ['rice', 'omelette', 'ketchup', 'cheese'], price: 23 },
+      lemon: { n: '檸檬水', from: 'drink', price: 6 },
+      shrimp: { n: '炸蝦', from: 'rack', price: 9 },
+      croq: { n: '可樂餅', from: 'rack', price: 8 },
+    },
+    levels: [
+      { menu: ['o', 'lemon'], dur: 95, pat: 34, gap: [2.5, 4.5], items: [1, 2], target: 180, tip: '先點白飯裝盤，再煎蛋，最後淋番茄醬。' },
+      { menu: ['o', 'c', 'lemon'], dur: 100, pat: 32, gap: [2.2, 4.2], items: [1, 2], target: 230, tip: '咖哩直接淋在白飯上。' },
+      { menu: ['o', 'c', 'lemon', 'shrimp'], dur: 105, pat: 31, gap: [2, 3.8], items: [1, 3], target: 270, tip: '' },
+      { menu: ['o', 'oc', 'c', 'lemon', 'shrimp'], dur: 110, pat: 30, gap: [1.9, 3.5], items: [2, 3], target: 300, tip: '咖哩蛋包飯：白飯＋煎蛋＋咖哩。' },
+      { menu: ['o', 'oc', 'c', 'lemon', 'shrimp', 'croq'], dur: 115, pat: 29, gap: [1.8, 3.3], items: [2, 3], target: 330, tip: '' },
+      { menu: ['o', 'oz', 'oc', 'c', 'lemon', 'shrimp', 'croq'], dur: 125, pat: 28, gap: [1.6, 3], items: [2, 3], target: 360, tip: '最終挑戰！' },
+    ],
+  },
+};
+LC.REST_ORDER = ['burger', 'omu'];
+
+LC.UPGRADES = [
+  { k: 'speed', n: '火力加強', d: '烹調速度 +12%', p: [60, 140, 260] },
+  { k: 'pat', n: '舒適座椅', d: '顧客耐心 +12%', p: [50, 120, 240] },
+  { k: 'tip', n: '可愛裝潢', d: '小費 +15%', p: [70, 150, 280] },
+  { k: 'slot', n: '多一格', d: '烤架或煎鍋多一格、盤子多一個', p: [120, 0, 0], max: 1 },
+];
+
+/* 顧客：原創動物角色 */
+LC.CUST = [
+  { k: 'cat', n: '橘子貓', c: '#f2a65a', c2: '#fff1de', ear: 'tri' },
+  { k: 'fox', n: '小狐', c: '#e57a3c', c2: '#fff6ea', ear: 'tall' },
+  { k: 'ham', n: '倉鼠球球', c: '#e8c48f', c2: '#fffaf0', ear: 'round' },
+  { k: 'panda', n: '胖達', c: '#f8f6f2', c2: '#fff', ear: 'roundDark', patch: 1 },
+  { k: 'koala', n: '尤加利', c: '#a9adb3', c2: '#e8e9ec', ear: 'fluffy' },
+  { k: 'sheep', n: '棉花羊', c: '#fbf8f2', c2: '#f3d9c6', ear: 'sheep' },
+  { k: 'tiger', n: '虎斑斑', c: '#f2b04a', c2: '#fff4e2', ear: 'round', stripe: 1 },
+  { k: 'bunny', n: '跳跳兔', c: '#f6efe8', c2: '#fff', ear: 'bunny' },
+  { k: 'raccoon', n: '小浣熊', c: '#9a958f', c2: '#efe9e2', ear: 'tri', mask: 1 },
+  { k: 'mouse', n: '起司鼠', c: '#c7c2bd', c2: '#f7d6d9', ear: 'big' },
+];
+})();
+
+</script>
+<script>
+/* 模組 2／6：核心 — 工具、亂數、存檔（金幣、星數、升級）、音效與背景音樂 */
+(function () {
+'use strict';
+const LC = window.LC;
+LC.U = {
+  clamp: (v, a, b) => (v < a ? a : v > b ? b : v),
+  rng(seed) { let a = seed >>> 0; return () => { a = (a + 0x6D2B79F5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; },
+  lerp: (a, b, t) => a + (b - a) * t,
+  ease: t => 1 - Math.pow(1 - t, 3),
+};
+
+LC.Save = {
+  key: 'cozy_counter_chef_v1',
+  d: { coins: 0, stars: { burger: [], omu: [] }, up: { burger: {}, omu: {} }, best: {}, muted: false, music: true },
+  load() { try { const s = JSON.parse(localStorage.getItem(this.key)); if (s) { Object.assign(this.d, s); for (const r of LC.REST_ORDER) { this.d.stars[r] = this.d.stars[r] || []; this.d.up[r] = this.d.up[r] || {}; } } } catch (e) { /* 略過 */ } LC.Audio.muted = this.d.muted; LC.Audio.music = this.d.music; },
+  save() { try { localStorage.setItem(this.key, JSON.stringify(this.d)); } catch (e) { /* 略過 */ } },
+  up(r, k) { return (this.d.up[r] && this.d.up[r][k]) || 0; },
+  unlocked(r, i) { if (r === 'omu' && (this.d.stars.burger[3] || 0) < 1) return false; return i === 0 || (this.d.stars[r][i - 1] || 0) >= 1; },
+};
+
+LC.Audio = {
+  ctx: null, muted: false, music: true, last: {}, mt: null, step: 0,
+  init() { if (this.ctx) { if (this.ctx.state === 'suspended') this.ctx.resume(); return; } try { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { this.ctx = null; } },
+  tone(f, d, type, v, slide, delay) {
+    if (this.muted || !this.ctx) return;
+    const c = this.ctx, t = c.currentTime + (delay || 0), o = c.createOscillator(), g = c.createGain();
+    o.type = type || 'sine'; o.frequency.setValueAtTime(f, t);
+    if (slide) o.frequency.exponentialRampToValueAtTime(Math.max(30, f * slide), t + d);
+    g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(v || 0.05, t + 0.008); g.gain.exponentialRampToValueAtTime(0.0001, t + d);
+    o.connect(g); g.connect(c.destination); o.start(t); o.stop(t + d + 0.05);
+  },
+  sfx(n) {
+    if (this.muted || !this.ctx) return;
+    const now = performance.now(); if (this.last[n] && now - this.last[n] < 45) return; this.last[n] = now;
+    const T = (...a) => this.tone(...a);
+    switch (n) {
+      case 'tap': T(660, 0.05, 'sine', 0.04, 1.4); break;
+      case 'place': T(420, 0.07, 'triangle', 0.05, 1.5); break;
+      case 'sizzle': T(1800, 0.18, 'sawtooth', 0.008, 0.6); break;
+      case 'ready': T(1175, 0.12, 'sine', 0.04); T(1568, 0.16, 'sine', 0.035, null, 0.07); break;
+      case 'serve': T(880, 0.06, 'square', 0.025); T(1320, 0.12, 'square', 0.025, null, 0.05); break;
+      case 'coin': [988, 1319, 1760].forEach((f, i) => T(f, 0.09, 'square', 0.022, null, i * 0.05)); break;
+      case 'combo': T(523 + Math.random() * 300, 0.12, 'triangle', 0.05, 1.5); break;
+      case 'burn': T(220, 0.3, 'sawtooth', 0.03, 0.5); break;
+      case 'angry': T(300, 0.2, 'triangle', 0.05, 0.6); break;
+      case 'no': T(200, 0.08, 'square', 0.025); break;
+      case 'win': [523, 659, 784, 1047, 1319].forEach((f, i) => T(f, 0.2, 'triangle', 0.06, null, i * 0.1)); break;
+      case 'lose': [392, 349, 294].forEach((f, i) => T(f, 0.28, 'triangle', 0.05, null, i * 0.16)); break;
+      case 'go': T(523, 0.12, 'square', 0.03); T(784, 0.25, 'square', 0.03, null, 0.14); break;
+    }
+  },
+  startMusic() {
+    clearInterval(this.mt);
+    const prog = [[262, 330, 392], [220, 262, 330], [175, 220, 262], [196, 247, 294]];
+    const mel = [784, 659, 784, 880, 784, 659, 587, 659, 523, 587, 659, 784, 659, 587, 523, 587];
+    this.mt = setInterval(() => {
+      if (!this.music || this.muted || !this.ctx || document.hidden) return;
+      const s = this.step++, ch = prog[Math.floor(s / 8) % 4];
+      if (s % 4 === 0) this.tone(ch[0] / 2, 0.35, 'triangle', 0.035);
+      if (s % 2 === 0) this.tone(ch[(s / 2) % 3], 0.18, 'triangle', 0.016);
+      if (s % 2 === 1 && Math.random() < 0.7) this.tone(mel[s % 16], 0.16, 'square', 0.01);
+    }, 150);
+  },
+  stopMusic() { clearInterval(this.mt); this.mt = null; },
+};
+})();
+
+</script>
+<script>
+/* 模組 3／6：廚房邏輯 — 顧客點單與耐心、烹調與燒焦、組裝盤、出餐配對、連擊與結算、連線用的狀態序列化 */
+(function () {
+'use strict';
+const LC = window.LC, U = LC.U, L = LC.LAYOUT;
+
+class Kitchen {
+  constructor(restKey, li, opt) {
+    opt = opt || {};
+    const R = this.R = LC.REST[restKey], lv = this.L = R.levels[li];
+    this.rk = restKey; this.li = li; this.coop = !!opt.coop;
+    const up = k => (opt.ups ? opt.ups[k] || 0 : LC.Save.up(restKey, k));
+    this.speed = 1 + 0.12 * up('speed'); this.patMul = 1 + 0.12 * up('pat'); this.tipMul = 1 + 0.15 * up('tip');
+    const extra = up('slot');
+    this.rand = U.rng(opt.seed || (Math.random() * 1e9) | 0);
+    this.dur = lv.dur; this.t = 0; this.coins = 0; this.combo = 0; this.comboT = 0; this.maxCombo = 0; this.served = 0; this.angry = 0; this.over = false; this.trash = false;
+    this.target = Math.round(lv.target * (this.coop ? 1.5 : 1));
+    this.menu = lv.menu;
+    this.dishes = R.dishes;
+    this.need = {};
+    for (const d of this.menu) { const dd = R.dishes[d]; if (dd.comps) { this.need.plates = 1; for (const c of dd.comps) this.need[c] = 1; } else if (dd.from === 'drink') this.need.drink = 1; else this.need[d] = 1; }
+    this.useCook2 = R.cook2.types.filter(ty => this.need[ty.out]);
+    this.c1 = Array.from({ length: R.cook1.n + extra }, () => ({ s: 'e', t: 0 }));
+    this.c2 = this.useCook2.length ? Array.from({ length: R.cook2.n }, () => ({ s: 'e', t: 0, k: '' })) : [];
+    this.plates = Array.from({ length: 3 + extra }, () => []);
+    this.rack = this.useCook2.length ? [null, null, null] : [];
+    this.cups = this.need.drink ? [{ f: 0.6 }, { f: 0.2 }] : [];
+    this.adds = R.adds.filter(a => this.need[a.item]);
+    this.cust = [null, null, null, null];
+    this.spawnT = [0.6, 2.2, 4, 6];
+    this.fx = []; this.anim = 0;
+  }
+
+  /* ---------- 可點擊區域 ---------- */
+  regions() {
+    if (this._reg) return this._reg;
+    const out = [], R = this.R, r = (id, b) => out.push({ id, x: b.x, y: b.y, w: b.w, h: b.h });
+    if (this.cups.length) { const b = L.drink; this.cups.forEach((c, i) => r('cup:' + i, { x: b.x + 6 + i * 72, y: b.y + 40, w: 66, h: b.h - 46 })); }
+    if (this.rack.length) { const b = L.rack; this.rack.forEach((c, i) => r('rack:' + i, { x: b.x + 4, y: b.y + 36 + i * 56, w: b.w - 8, h: 54 })); }
+    { const b = L.cook1, n = this.c1.length, hh = (b.h - 36) / n; this.c1.forEach((c, i) => r('c1:' + i, { x: b.x + 6, y: b.y + 32 + i * hh, w: b.w - 12, h: hh - 2 })); }
+    { const b = L.plates, n = this.plates.length, hh = (b.h - 34) / n; this.plates.forEach((p, i) => r('pl:' + i, { x: b.x + 6, y: b.y + 30 + i * hh, w: b.w - 12, h: hh - 2 })); }
+    if (this.c2.length) { const b = L.cook2; this.c2.forEach((c, i) => r('c2:' + i, { x: b.x + 6 + i * 107, y: b.y + 30, w: 103, h: b.h - 36 })); for (const ty of this.useCook2) r('box:' + ty.raw, L[ty.box]); }
+    r('box1', L.box1); r('base', L.base); r('trash', L.trash);
+    for (const a of this.adds) r('add:' + a.item, L[a.role]);
+    for (let i = 0; i < 4; i++) r('cu:' + i, { x: 14 + i * 174, y: 78, w: 168, h: 262 });
+    return (this._reg = out);
+  }
+  hit(x, y) { for (const g of this.regions()) if (x >= g.x && x <= g.x + g.w && y >= g.y && y <= g.y + g.h) return g; return null; }
+
+  /* ---------- 點擊 ---------- */
+  tap(x, y, who) {
+    if (this.over) return;
+    const g = this.hit(x, y); if (!g) { this.trash = false; return; }
+    const [kind, arg] = g.id.split(':'), i = +arg, R = this.R;
+    const cx = g.x + g.w / 2, cy = g.y + g.h / 2;
+    this.lastTap = { x: cx, y: cy, t: this.anim, who };
+    if (kind === 'trash') { this.trash = !this.trash; return this.snd('tap'); }
+    if (this.trash) {
+      this.trash = false;
+      if (kind === 'pl' && this.plates[i].length) { this.plates[i] = []; return this.snd('burn'); }
+      if (kind === 'rack' && this.rack[i]) { this.rack[i] = null; return this.snd('burn'); }
+      if (kind === 'c1' && this.c1[i].s !== 'e') { this.c1[i] = { s: 'e', t: 0 }; return this.snd('burn'); }
+      if (kind === 'c2' && this.c2[i].s !== 'e') { this.c2[i] = { s: 'e', t: 0, k: '' }; return this.snd('burn'); }
+    }
+    switch (kind) {
+      case 'box1': { const s = this.c1.find(q => q.s === 'e'); if (s) { s.s = 'c'; s.t = 0; this.snd('sizzle'); } else this.no(cx, cy); break; }
+      case 'box': { const ty = R.cook2.types.find(q => q.raw === g.id.slice(4)); const s = this.c2.find(q => q.s === 'e'); if (s && ty) { s.s = 'c'; s.t = 0; s.k = ty.out; this.snd('sizzle'); } else this.no(cx, cy); break; }
+      case 'c1': {
+        const s = this.c1[i];
+        if (s.s === 'b') { this.c1[i] = { s: 'e', t: 0 }; this.coins = Math.max(0, this.coins - 2); this.float(cx, cy, '-2', '#c94f4f'); return this.snd('burn'); }
+        if (s.s !== 'd') return;
+        const out = R.cook1.out, nt = R.cook1.not || [out];
+        const p = this.plates.find(pl => pl.includes(R.base) && !pl.includes(out) && !nt.some(n => pl.includes(n)));
+        if (p) { p.push(out); this.c1[i] = { s: 'e', t: 0 }; this.snd('place'); } else this.no(cx, cy);
+        break;
+      }
+      case 'c2': {
+        const s = this.c2[i];
+        if (s.s === 'b') { this.c2[i] = { s: 'e', t: 0, k: '' }; this.coins = Math.max(0, this.coins - 2); this.float(cx, cy, '-2', '#c94f4f'); return this.snd('burn'); }
+        if (s.s !== 'd') return;
+        if (this.serve(s.k, cx, cy)) { this.c2[i] = { s: 'e', t: 0, k: '' }; return; }
+        const ri = this.rack.indexOf(null);
+        if (ri >= 0) { this.rack[ri] = s.k; this.c2[i] = { s: 'e', t: 0, k: '' }; this.snd('place'); } else this.no(cx, cy);
+        break;
+      }
+      case 'rack': if (this.rack[i] && this.serve(this.rack[i], cx, cy)) this.rack[i] = null; else if (this.rack[i]) this.no(cx, cy); break;
+      case 'cup': if (this.cups[i].f >= 1 && this.serve(R.drink.item, cx, cy)) this.cups[i].f = 0; else this.no(cx, cy); break;
+      case 'base': { const p = this.plates.find(pl => !pl.length); if (p) { p.push(R.base); this.snd('place'); } else this.no(cx, cy); break; }
+      case 'add': {
+        const a = this.adds.find(q => q.item === arg);
+        const p = this.plates.find(pl => pl.includes(a.needs) && !pl.includes(a.item) && !(a.not || []).some(n => pl.includes(n)));
+        if (p) { p.push(a.item); this.snd('place'); } else this.no(cx, cy);
+        break;
+      }
+      case 'pl': {
+        const d = this.dishOf(this.plates[i]);
+        if (d && this.serve(d, cx, cy)) this.plates[i] = []; else if (this.plates[i].length) this.no(cx, cy);
+        break;
+      }
+    }
+  }
+  dishOf(pl) {
+    if (!pl.length) return null;
+    const key = pl.slice().sort().join('+');
+    for (const d of this.menu) { const dd = this.dishes[d]; if (dd.comps && dd.comps.slice().sort().join('+') === key) return d; }
+    return null;
+  }
+  serve(d, x, y) {
+    let best = -1, br = 9;
+    this.cust.forEach((c, ci) => { if (!c || c.leave || c.anim < 1) return; if (c.items.some(it => it.d === d && !it.ok)) { const r = c.pat / c.max; if (r < br) { br = r; best = ci; } } });
+    if (best < 0) return false;
+    const c = this.cust[best], it = c.items.find(q => q.d === d && !q.ok);
+    it.ok = true; this.served++;
+    this.combo = this.comboT > 0 ? this.combo + 1 : 1; this.comboT = 4.5; this.maxCombo = Math.max(this.maxCombo, this.combo);
+    const bonus = this.combo >= 3 ? Math.min(6, 1 + Math.floor(this.combo / 3)) : 0;
+    this.coins += bonus;
+    this.fx.push({ k: 'fly', d, x0: x, y0: y, x1: 60 + best * 174, y1: 160, t: 0 });
+    if (bonus) { this.float(80 + best * 174, 110, `${this.combo} 連擊 +${bonus}`, '#f29b4a'); this.snd('combo'); }
+    this.snd('serve');
+    if (c.items.every(q => q.ok)) {
+      const sum = c.items.reduce((s, q) => s + this.dishes[q.d].price, 0);
+      const pay = Math.round(sum * (1 + 0.35 * (c.pat / c.max) * this.tipMul));
+      this.coins += pay; c.leave = 0.001; c.happy = true;
+      this.float(90 + best * 174, 200, `+${pay}`, '#d99a1e'); this.snd('coin');
+    }
+    return true;
+  }
+  no(x, y) { this.fx.push({ k: 'no', x, y, t: 0 }); this.snd('no'); }
+  float(x, y, s, col) { this.fx.push({ k: 'txt', x, y, s, col, t: 0 }); }
+  snd(n) { if (!this.silent) LC.Audio.sfx(n); }
+
+  /* ---------- 時間 ---------- */
+  spawn(i) {
+    const lv = this.L, n = lv.items[0] + Math.floor(this.rand() * (lv.items[1] - lv.items[0] + 1)), items = [];
+    for (let k = 0; k < n; k++) { let d; let tries = 0; do { d = lv.menu[Math.floor(this.rand() * lv.menu.length)]; } while (items.some(q => q.d === d) && ++tries < 4); items.push({ d, ok: false }); }
+    const pat = lv.pat * this.patMul * (0.85 + n * 0.12) * (this.coop ? 1.1 : 1);
+    this.cust[i] = { sp: Math.floor(this.rand() * LC.CUST.length), items, pat, max: pat, anim: 0, leave: 0 };
+  }
+  update(dt) {
+    this.anim += dt;
+    for (const f of this.fx) f.t += dt;
+    this.fx = this.fx.filter(f => f.t < (f.k === 'fly' ? 0.45 : f.k === 'no' ? 0.35 : 1.1));
+    if (this.over) return;
+    this.t += dt;
+    const R = this.R;
+    for (const s of this.c1) this.cookTick(s, dt, R.cook1);
+    for (const s of this.c2) this.cookTick(s, dt, R.cook2);
+    for (const c of this.cups) c.f = Math.min(1, c.f + dt / R.drink.fill * this.speed);
+    if ((this.comboT -= dt) <= 0) this.combo = 0;
+    const gap = this.L.gap;
+    for (let i = 0; i < 4; i++) {
+      const c = this.cust[i];
+      if (!c) {
+        if ((this.spawnT[i] -= dt) <= 0 && this.t < this.dur - 5) this.spawn(i);
+        continue;
+      }
+      if (c.anim < 1) { c.anim = Math.min(1, c.anim + dt * 3); continue; }
+      if (c.leave) { c.leave += dt * 2.2; if (c.leave >= 1) { this.cust[i] = null; this.spawnT[i] = (gap[0] + this.rand() * (gap[1] - gap[0])) * (this.coop ? 0.6 : 1); } continue; }
+      c.pat -= dt;
+      if (c.pat <= 0) { c.leave = 0.001; c.happy = false; this.angry++; this.combo = 0; this.snd('angry'); this.float(90 + i * 174, 200, '生氣離開', '#c94f4f'); }
+    }
+    if (this.t >= this.dur) this.finish();
+  }
+  cookTick(s, dt, cfg) {
+    if (s.s === 'c') { s.t += dt * this.speed; if (s.t >= cfg.cook) { s.s = 'd'; this.snd('ready'); } }
+    else if (s.s === 'd') { s.t += dt; if (s.t >= cfg.burn) { s.s = 'b'; this.snd('burn'); } }
+  }
+  finish() {
+    this.over = true; this.t = this.dur;
+    const tg = this.target;
+    this.stars = this.coins >= tg * 1.7 ? 3 : this.coins >= tg * 1.35 ? 2 : this.coins >= tg ? 1 : 0;
+    if (this.onEnd) this.onEnd(this);
+  }
+
+  /* ---------- 連線同步（主機 → 隊友） ---------- */
+  ser() {
+    const r1 = v => Math.round(v * 10) / 10;
+    return {
+      t: r1(this.t), c: this.coins, cb: this.combo, mc: this.maxCombo, sv: this.served, an: this.angry, o: this.over ? 1 : 0, st: this.stars || 0, tr: this.trash ? 1 : 0,
+      cu: this.cust.map(c => c ? [c.sp, c.items.map(q => q.d + (q.ok ? '*' : '')).join(','), Math.round(c.pat / c.max * 100), Math.round(c.anim * 10), Math.round(c.leave * 10), c.happy ? 1 : 0] : 0),
+      c1: this.c1.map(s => s.s + Math.round(s.t * 10)), c2: this.c2.map(s => s.s + Math.round(s.t * 10) + ':' + s.k),
+      pl: this.plates.map(p => p.join('.')), rk: this.rack.map(x => x || ''), cp: this.cups.map(c => Math.round(c.f * 100)),
+      tp: this.lastTap ? [Math.round(this.lastTap.x), Math.round(this.lastTap.y), this.lastTap.who || 0, Math.round(this.lastTap.t * 10)] : 0,
+    };
+  }
+  apply(o) {
+    const pre = this.served;
+    this.t = o.t; this.coins = o.c; this.combo = o.cb; this.maxCombo = o.mc; this.served = o.sv; this.angry = o.an; this.trash = !!o.tr; this.stars = o.st;
+    this.cust = o.cu.map(a => { if (!a) return null; const items = a[1].split(',').map(s => ({ d: s.replace('*', ''), ok: s.endsWith('*') })); const max = 100; return { sp: a[0], items, pat: a[2], max, anim: a[3] / 10, leave: a[4] / 10, happy: !!a[5] }; });
+    const cs = (s, k) => { const m = s.match(/^([a-z])(\d+)(?::(.*))?$/); return m ? { s: m[1], t: +m[2] / 10, k: m[3] || '' } : { s: 'e', t: 0, k: '' }; };
+    this.c1 = o.c1.map(s => cs(s)); this.c2 = o.c2.map(s => cs(s));
+    this.plates = o.pl.map(s => (s ? s.split('.') : [])); this.rack = o.rk.map(x => x || null); this.cups = o.cp.map(f => ({ f: f / 100 }));
+    if (o.tp && (!this.lastTap || this.remoteTapT !== o.tp[3])) { this.remoteTapT = o.tp[3]; this.lastTap = { x: o.tp[0], y: o.tp[1], who: o.tp[2], t: this.anim }; }
+    if (this.served > pre) LC.Audio.sfx('serve');
+    if (o.o && !this.over) { this.over = true; if (this.onEnd) this.onEnd(this); }
+  }
+}
+LC.Kitchen = Kitchen;
+})();
+
+</script>
+<script>
+/* 模組 4／6：美術 — 食物、顧客、工作站、店內背景與 HUD 的程式繪製（全原創） */
+(function () {
+'use strict';
+const LC = window.LC, L = LC.LAYOUT, INK = '#5a3e2e';
+
+const A = LC.Art = {
+  rr(ctx, x, y, w, h, r) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); },
+  c(ctx, x, y, r, f, s, lw) { ctx.beginPath(); ctx.arc(x, y, Math.max(0.1, r), 0, Math.PI * 2); if (f) { ctx.fillStyle = f; ctx.fill(); } if (s) { ctx.strokeStyle = s; ctx.lineWidth = lw || 2; ctx.stroke(); } },
+  e(ctx, x, y, rx, ry, f, s, lw, rot) { ctx.beginPath(); ctx.ellipse(x, y, Math.max(0.1, rx), Math.max(0.1, ry), rot || 0, 0, Math.PI * 2); if (f) { ctx.fillStyle = f; ctx.fill(); } if (s) { ctx.strokeStyle = s; ctx.lineWidth = lw || 2; ctx.stroke(); } },
+  grad(ctx, y0, y1, a, b) { const g = ctx.createLinearGradient(0, y0, 0, y1); g.addColorStop(0, a); g.addColorStop(1, b); return g; },
+
+  /* ---------- 食物 ---------- */
+  food(ctx, k, x, y, s, o) {
+    o = o || {};
+    ctx.save(); ctx.translate(x, y); ctx.scale(s, s); ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+    switch (k) {
+      case 'bun': A.e(ctx, 0, 6, 26, 9, '#e8a856', INK); A.e(ctx, 0, 3, 24, 5, '#f4c27a'); break;
+      case 'bunTop':
+        ctx.beginPath(); ctx.moveTo(-27, 4); ctx.bezierCurveTo(-27, -22, 27, -22, 27, 4); ctx.closePath(); ctx.fillStyle = A.grad(ctx, -18, 4, '#f2b65f', '#d98c38'); ctx.fill(); ctx.strokeStyle = INK; ctx.lineWidth = 2; ctx.stroke();
+        for (const [sx, sy] of [[-12, -8], [-2, -12], [9, -9], [16, -3], [-18, -2], [3, -4]]) A.e(ctx, sx, sy, 2.2, 1.2, '#fff6dc', null, 0, 0.4); break;
+      case 'patty_raw': A.e(ctx, 0, 0, 24, 11, '#e58a8a', INK); A.e(ctx, -5, -3, 9, 3, '#f2b0b0'); for (let i = 0; i < 5; i++) A.c(ctx, -14 + i * 7, 3, 1.6, '#c96a6a'); break;
+      case 'patty': A.e(ctx, 0, 0, 25, 11, '#7a4528', INK); A.e(ctx, -6, -4, 10, 3, '#9a5c38'); ctx.strokeStyle = '#4a2a18'; ctx.lineWidth = 2; for (const dx of [-10, 0, 10]) { ctx.beginPath(); ctx.moveTo(dx - 4, -4); ctx.lineTo(dx + 4, 4); ctx.stroke(); } break;
+      case 'burnt': A.e(ctx, 0, 0, 24, 11, '#2b221e', INK); A.e(ctx, -6, -4, 9, 3, '#4a3a33'); break;
+      case 'cheese': ctx.beginPath(); ctx.moveTo(-24, -4); ctx.lineTo(24, -4); ctx.lineTo(20, 4); ctx.lineTo(10, 10); ctx.lineTo(4, 3); ctx.lineTo(-10, 6); ctx.lineTo(-22, 2); ctx.closePath(); ctx.fillStyle = '#f7c948'; ctx.fill(); ctx.strokeStyle = INK; ctx.lineWidth = 1.6; ctx.stroke(); A.c(ctx, -8, 0, 2, '#e7b22e'); A.c(ctx, 10, -1, 1.6, '#e7b22e'); break;
+      case 'lettuce': ctx.beginPath(); for (let i = 0; i <= 10; i++) { const px = -26 + i * 5.2, py = i % 2 ? 6 : -1; ctx.lineTo(px, py); } ctx.lineTo(24, -4); ctx.lineTo(-24, -4); ctx.closePath(); ctx.fillStyle = '#7cc957'; ctx.fill(); ctx.strokeStyle = '#3f7a2a'; ctx.lineWidth = 1.6; ctx.stroke(); break;
+      case 'tomato': for (const dx of [-11, 11]) { A.e(ctx, dx, 0, 11, 5, '#e2463d', INK, 1.5); A.e(ctx, dx, -1, 7, 2.5, '#f47a6e'); } break;
+      case 'fries_raw': case 'fries': {
+        const cooked = k === 'fries';
+        if (cooked && !o.loose) { ctx.beginPath(); ctx.moveTo(-18, -4); ctx.lineTo(18, -4); ctx.lineTo(13, 24); ctx.lineTo(-13, 24); ctx.closePath(); ctx.fillStyle = '#e34b3f'; ctx.fill(); ctx.strokeStyle = INK; ctx.lineWidth = 2; ctx.stroke(); ctx.fillStyle = '#fff'; for (const sx of [-9, 0, 9]) ctx.fillRect(sx - 2, -3, 4, 26); }
+        const col = cooked ? '#f6c544' : '#f6e7b4', dk = cooked ? '#d9a12a' : '#d8c78f';
+        for (let i = 0; i < 7; i++) { const px = -15 + i * 5, h = 22 + (i % 3) * 5; ctx.fillStyle = col; ctx.strokeStyle = dk; ctx.lineWidth = 1.2; ctx.save(); ctx.translate(px, -2); ctx.rotate((i - 3) * 0.06); ctx.fillRect(-2.2, -h, 4.4, h); ctx.strokeRect(-2.2, -h, 4.4, h); ctx.restore(); }
+        break;
+      }
+      case 'nug_raw': case 'nug': { const col = k === 'nug' ? '#e6a345' : '#f4e2bd'; for (const [dx, dy, r] of [[-11, 2, 10], [9, 3, 10], [-1, -7, 10]]) { A.e(ctx, dx, dy, r, r * 0.75, col, INK, 1.6); if (k === 'nug') { A.c(ctx, dx - 3, dy - 2, 1.4, '#c98226'); A.c(ctx, dx + 3, dy + 1, 1.2, '#c98226'); } } break; }
+      case 'soda': case 'lemon': {
+        const f = o.fill == null ? 1 : o.fill, lem = k === 'lemon';
+        ctx.beginPath(); ctx.moveTo(-15, -26); ctx.lineTo(15, -26); ctx.lineTo(11, 22); ctx.lineTo(-11, 22); ctx.closePath(); ctx.fillStyle = lem ? 'rgba(230,245,250,0.85)' : '#fdfaf3'; ctx.fill();
+        ctx.save(); ctx.clip(); ctx.fillStyle = lem ? '#f5e27a' : '#8a3b2a'; ctx.fillRect(-16, 22 - 48 * f, 32, 48 * f); if (f > 0.3) { ctx.fillStyle = 'rgba(255,255,255,0.5)'; for (let i = 0; i < 4; i++) A.c(ctx, -6 + i * 4, 18 - ((o.t || 0) * 20 + i * 9) % (44 * f), 1.6, 'rgba(255,255,255,0.7)'); } ctx.restore();
+        ctx.strokeStyle = INK; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(-15, -26); ctx.lineTo(15, -26); ctx.lineTo(11, 22); ctx.lineTo(-11, 22); ctx.closePath(); ctx.stroke();
+        if (!lem) { ctx.fillStyle = '#e34b3f'; ctx.fillRect(-15, -6, 30, 10); ctx.fillStyle = '#fff'; ctx.font = '700 7px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('SODA', 0, 2); }
+        if (f >= 1) { ctx.strokeStyle = lem ? '#6fbf73' : '#e34b3f'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(4, -26); ctx.lineTo(10, -40); ctx.stroke(); if (lem) { A.c(ctx, -10, -26, 7, '#f7e05a', INK, 1.5); A.c(ctx, -10, -26, 4, '#fff6b0'); } }
+        break;
+      }
+      case 'rice': ctx.beginPath(); ctx.ellipse(0, 4, 24, 13, 0, Math.PI, 0); ctx.lineTo(24, 6); ctx.lineTo(-24, 6); ctx.closePath(); ctx.fillStyle = '#fffdf6'; ctx.fill(); ctx.strokeStyle = INK; ctx.lineWidth = 1.6; ctx.stroke(); for (let i = 0; i < 9; i++) A.e(ctx, -16 + (i * 7) % 32, -4 + (i % 3) * 3, 2, 1.1, '#e9e2d0'); break;
+      case 'egg_raw': A.e(ctx, 0, 0, 24, 14, '#fffaf0', INK, 1.6); A.c(ctx, 0, 0, 8, '#f6b52e'); A.c(ctx, -2, -2, 2.5, '#ffe18a'); break;
+      case 'omelette': ctx.beginPath(); ctx.ellipse(0, 0, 28, 16, 0, Math.PI * 1.05, Math.PI * 1.95); ctx.bezierCurveTo(28, 8, -28, 8, -26, -5); ctx.closePath(); ctx.fillStyle = A.grad(ctx, -16, 8, '#ffd955', '#f2b42c'); ctx.fill(); ctx.strokeStyle = INK; ctx.lineWidth = 1.8; ctx.stroke(); A.e(ctx, -8, -8, 8, 2.5, 'rgba(255,255,255,0.55)'); break;
+      case 'ketchup': ctx.strokeStyle = '#d7362b'; ctx.lineWidth = 3.4; ctx.beginPath(); for (let i = 0; i <= 6; i++) ctx.lineTo(-15 + i * 5, -6 + (i % 2 ? 4 : -2)); ctx.stroke(); break;
+      case 'curry': A.e(ctx, 0, 6, 26, 9, '#b8742e', INK, 1.5); A.e(ctx, -6, 4, 6, 2.5, '#d9a050'); A.c(ctx, 8, 6, 3.5, '#f08a3c', INK, 1); A.c(ctx, -12, 7, 3, '#f6e7b4', INK, 1); break;
+      case 'shrimp_raw': case 'shrimp': case 'croq_raw': case 'croq': {
+        const done = !k.endsWith('raw'), cro = k.startsWith('croq');
+        if (cro) { for (const dx of [-10, 10]) { A.e(ctx, dx, 0, 12, 9, done ? '#d9933a' : '#efdcb6', INK, 1.6); if (done) for (let i = 0; i < 4; i++) A.c(ctx, dx - 5 + i * 3, -2 + (i % 2) * 3, 1.3, '#b8742e'); } }
+        else for (const dy of [-6, 6]) { ctx.save(); ctx.translate(0, dy); ctx.rotate(-0.2); A.e(ctx, -2, 0, 20, 6.5, done ? '#e8a240' : '#f4b6a6', INK, 1.5); ctx.beginPath(); ctx.moveTo(17, 0); ctx.lineTo(26, -6); ctx.lineTo(25, 5); ctx.closePath(); ctx.fillStyle = '#e8574a'; ctx.fill(); ctx.stroke(); if (done) for (let i = 0; i < 5; i++) A.c(ctx, -14 + i * 6, -1, 1.2, '#c97f22'); ctx.restore(); }
+        break;
+      }
+    }
+    ctx.restore();
+  },
+  /* 盤子上的組合 */
+  plate(ctx, comps, x, y, s, rest) {
+    ctx.save(); ctx.translate(x, y); ctx.scale(s, s);
+    A.e(ctx, 0, 12, 34, 11, '#ffffff', INK, 2); A.e(ctx, 0, 11, 26, 7.5, '#f1ede6');
+    ctx.restore();
+    const has = k => comps.includes(k);
+    if (rest === 'burger') {
+      let yy = y + 6 * s;
+      if (has('bun')) { A.food(ctx, 'bun', x, yy, s * 0.95); yy -= 7 * s; }
+      if (has('patty')) { A.food(ctx, 'patty', x, yy, s * 0.95); yy -= 8 * s; }
+      if (has('tomato')) { A.food(ctx, 'tomato', x, yy, s * 0.9); yy -= 4 * s; }
+      if (has('cheese')) { A.food(ctx, 'cheese', x, yy + 2 * s, s * 0.95); yy -= 4 * s; }
+      if (has('lettuce')) { A.food(ctx, 'lettuce', x, yy + 2 * s, s * 0.95); yy -= 5 * s; }
+      if (has('patty')) A.food(ctx, 'bunTop', x, yy, s * 0.95);
+    } else {
+      if (has('rice')) A.food(ctx, 'rice', x, y + 3 * s, s * 0.95);
+      if (has('curry')) { ctx.save(); A.food(ctx, 'curry', x + (has('omelette') ? 0 : 6 * s), y + 6 * s, s * 0.95); ctx.restore(); }
+      if (has('omelette')) A.food(ctx, 'omelette', x, y - 2 * s, s * 0.95);
+      if (has('cheese')) { ctx.fillStyle = '#f7c948'; ctx.strokeStyle = INK; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.moveTo(x - 12 * s, y - 10 * s); ctx.lineTo(x + 6 * s, y - 13 * s); ctx.lineTo(x + 2 * s, y - 2 * s); ctx.closePath(); ctx.fill(); ctx.stroke(); }
+      if (has('ketchup')) A.food(ctx, 'ketchup', x, y - 4 * s, s * 0.95);
+    }
+  },
+  dish(ctx, R, d, x, y, s, t) {
+    const dd = R.dishes[d];
+    if (dd.comps) A.plate(ctx, dd.comps, x, y, s, R.key);
+    else if (dd.from === 'drink') A.food(ctx, d, x, y, s * 0.9, { fill: 1, t });
+    else A.food(ctx, d, x, y, s);
+  },
+
+  /* ---------- 顧客 ---------- */
+  cust(ctx, sp, x, y, s, mood, t) {
+    const C = LC.CUST[sp % LC.CUST.length], c = C.c, c2 = C.c2;
+    ctx.save(); ctx.translate(x, y); ctx.scale(s, s); ctx.lineJoin = 'round';
+    const bob = Math.sin(t * 2 + sp) * 1.5;
+    // 身體
+    ctx.beginPath(); ctx.moveTo(-34, 0); ctx.bezierCurveTo(-34, -40, 34, -40, 34, 0); ctx.closePath(); ctx.fillStyle = ['#7cb6e8', '#f29bb5', '#8fd16a', '#f6d36b', '#b48ad8'][sp % 5]; ctx.fill(); ctx.strokeStyle = INK; ctx.lineWidth = 2.5; ctx.stroke();
+    ctx.translate(0, -44 + bob);
+    // 耳朵
+    const ear = (dx, rot) => {
+      ctx.save(); ctx.translate(dx, -26); ctx.rotate(rot);
+      switch (C.ear) {
+        case 'tri': ctx.beginPath(); ctx.moveTo(-12, 8); ctx.lineTo(0, -18); ctx.lineTo(12, 8); ctx.closePath(); ctx.fillStyle = c; ctx.fill(); ctx.stroke(); ctx.beginPath(); ctx.moveTo(-6, 6); ctx.lineTo(0, -9); ctx.lineTo(6, 6); ctx.closePath(); ctx.fillStyle = '#f7b9c0'; ctx.fill(); break;
+        case 'tall': ctx.beginPath(); ctx.moveTo(-11, 8); ctx.lineTo(0, -26); ctx.lineTo(11, 8); ctx.closePath(); ctx.fillStyle = c; ctx.fill(); ctx.stroke(); ctx.beginPath(); ctx.moveTo(-5, 6); ctx.lineTo(0, -12); ctx.lineTo(5, 6); ctx.closePath(); ctx.fillStyle = '#3a2a24'; ctx.fill(); break;
+        case 'round': A.c(ctx, 0, 0, 11, c, INK, 2.5); A.c(ctx, 0, 1, 6, '#f7b9c0'); break;
+        case 'roundDark': A.c(ctx, 0, 2, 11, '#2f2b2a', INK, 2.5); break;
+        case 'fluffy': A.c(ctx, 0, 4, 15, c, INK, 2.5); A.c(ctx, 0, 5, 9, '#f2eef0'); break;
+        case 'sheep': A.e(ctx, 0, 10, 12, 6, '#f3d9c6', INK, 2, rot > 0 ? 0.4 : -0.4); break;
+        case 'bunny': A.e(ctx, 0, -16, 8, 22, c, INK, 2.5); A.e(ctx, 0, -14, 4, 15, '#f7b9c0'); break;
+        case 'big': A.c(ctx, 0, 0, 15, c, INK, 2.5); A.c(ctx, 0, 1, 9, c2); break;
+      }
+      ctx.restore();
+    };
+    ctx.strokeStyle = INK; ctx.lineWidth = 2.5;
+    ear(-22, -0.25); ear(22, 0.25);
+    // 頭
+    if (C.ear === 'sheep') { for (let i = 0; i < 9; i++) { const a = Math.PI + i / 8 * Math.PI; A.c(ctx, Math.cos(a) * 30, -6 + Math.sin(a) * 26, 10, c, INK, 2.5); } }
+    A.e(ctx, 0, 0, 36, 31, c, INK, 2.5);
+    if (C.ear === 'sheep') for (let i = 0; i < 5; i++) A.c(ctx, -16 + i * 8, -26, 8, c);
+    if (C.stripe) { ctx.strokeStyle = '#8a4a1f'; ctx.lineWidth = 3; for (const [a, b] of [[-6, -30], [0, -31], [6, -30]]) { ctx.beginPath(); ctx.moveTo(a, b); ctx.lineTo(a, b + 8); ctx.stroke(); } for (const sx of [-1, 1]) { ctx.beginPath(); ctx.moveTo(sx * 34, -6); ctx.lineTo(sx * 26, -4); ctx.moveTo(sx * 34, 2); ctx.lineTo(sx * 27, 3); ctx.stroke(); } }
+    A.e(ctx, 0, 10, 20, 14, c2);
+    if (C.patch) { A.e(ctx, -13, -2, 9, 11, '#2f2b2a', null, 0, 0.5); A.e(ctx, 13, -2, 9, 11, '#2f2b2a', null, 0, -0.5); }
+    if (C.mask) A.e(ctx, 0, -2, 28, 9, '#4a4440');
+    // 表情
+    const blink = (t + sp) % 4 < 0.12;
+    const eyeCol = C.patch || C.mask ? '#fff' : '#2b2020';
+    for (const sx of [-13, 13]) {
+      if (mood === 'happy' || blink) { ctx.strokeStyle = eyeCol; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(sx, -1, 5, Math.PI * 1.15, Math.PI * 1.85); ctx.stroke(); }
+      else if (mood === 'angry') { A.c(ctx, sx, 0, 4, eyeCol); ctx.strokeStyle = INK; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(sx + (sx < 0 ? -6 : 6), -11); ctx.lineTo(sx + (sx < 0 ? 5 : -5), -6); ctx.stroke(); }
+      else { A.e(ctx, sx, -1, 4.2, 5, eyeCol); A.c(ctx, sx - 1.4, -3, 1.6, C.patch || C.mask ? '#2b2020' : '#fff'); }
+    }
+    A.e(ctx, 0, 7, 4, 3, '#3a2a24');
+    ctx.strokeStyle = INK; ctx.lineWidth = 2.2; ctx.beginPath();
+    if (mood === 'angry') { ctx.moveTo(-6, 18); ctx.quadraticCurveTo(0, 13, 6, 18); }
+    else if (mood === 'worried') { ctx.moveTo(-5, 16); ctx.lineTo(5, 16); }
+    else { ctx.moveTo(-7, 13); ctx.quadraticCurveTo(-3, 18, 0, 13); ctx.quadraticCurveTo(3, 18, 7, 13); }
+    ctx.stroke();
+    A.e(ctx, -22, 10, 6, 3.5, 'rgba(244,128,140,0.5)'); A.e(ctx, 22, 10, 6, 3.5, 'rgba(244,128,140,0.5)');
+    if (mood === 'angry') { A.c(ctx, 34, -30, 9, '#e34b3f'); ctx.fillStyle = '#fff'; ctx.font = '700 14px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('!', 34, -25); }
+    if (mood === 'happy') { ctx.fillStyle = '#f2577a'; ctx.font = '18px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('♥', 30, -30 - (t * 20) % 10); }
+    ctx.restore();
+  },
+
+  /* ---------- 整個廚房 ---------- */
+  kitchen(ctx, k, t, opt) {
+    opt = opt || {};
+    const R = k.R, KW = LC.KW;
+    // 牆面
+    ctx.fillStyle = R.wall; ctx.fillRect(0, 0, KW, 352);
+    ctx.fillStyle = R.wall2; for (let x = 0; x < KW; x += 48) ctx.fillRect(x, 0, 24, 352);
+    // 窗戶
+    A.rr(ctx, 230, 84, 260, 150, 16); ctx.fillStyle = A.grad(ctx, 84, 234, '#bfe6f7', '#e8f6fb'); ctx.fill(); ctx.strokeStyle = '#8a5f3b'; ctx.lineWidth = 8; ctx.stroke();
+    ctx.fillStyle = '#9ccf7a'; ctx.beginPath(); ctx.arc(290, 236, 46, Math.PI, 0); ctx.arc(400, 236, 60, Math.PI, 0); ctx.fill();
+    ctx.strokeStyle = '#8a5f3b'; ctx.lineWidth = 5; ctx.beginPath(); ctx.moveTo(360, 84); ctx.lineTo(360, 234); ctx.stroke();
+    // 招牌
+    A.rr(ctx, 258, 52, 204, 34, 12); ctx.fillStyle = '#7a5236'; ctx.fill(); ctx.fillStyle = '#fff4dc'; ctx.font = '700 19px "Zen Maru Gothic", "Huninn", sans-serif'; ctx.textAlign = 'center'; ctx.fillText(R.n, 360, 76);
+    // 燈串
+    for (let i = 0; i < 12; i++) { const x = 30 + i * 60, y = 74 + Math.sin(i * 1.3) * 4; A.c(ctx, x, y, 6, ['#f6d36b', '#f29bb5', '#8fd3e8', '#9be07a'][i % 4]); if (Math.sin(t * 3 + i) > 0.6) A.c(ctx, x, y, 10, 'rgba(255,240,180,0.35)'); }
+    // 顧客與點單卡
+    for (let i = 0; i < 4; i++) {
+      const c = k.cust[i]; if (!c) continue;
+      const bx = 14 + i * 174, ent = LC.U.ease(c.anim), lv = c.leave ? LC.U.ease(Math.min(1, c.leave)) : 0;
+      const ratio = c.pat / c.max, mood = c.leave ? (c.happy ? 'happy' : 'angry') : ratio < 0.2 ? 'angry' : ratio < 0.45 ? 'worried' : 'ok';
+      ctx.save(); ctx.globalAlpha = Math.max(0, 1 - lv) * ent;
+      A.cust(ctx, c.sp, bx + 118 + (1 - ent) * 60, 338 - lv * 30 + (1 - ent) * 20, 1.15, mood, t);
+      if (!c.leave) {
+        const n = c.items.length, ch = 16 + n * 58, cy = 96;
+        ctx.save(); ctx.translate(bx + 2, cy);
+        A.rr(ctx, 0, 0, 74, ch, 12); ctx.fillStyle = '#fffdf8'; ctx.fill(); ctx.strokeStyle = INK; ctx.lineWidth = 2.5; ctx.stroke();
+        c.items.forEach((it, j) => {
+          const iy = 36 + j * 58;
+          A.dish(ctx, R, it.d, 37, iy, 0.72, t);
+          if (it.ok) { A.c(ctx, 37, iy - 4, 22, 'rgba(255,255,255,0.75)'); ctx.strokeStyle = '#4fae5a'; ctx.lineWidth = 6; ctx.beginPath(); ctx.moveTo(24, iy - 4); ctx.lineTo(33, iy + 6); ctx.lineTo(52, iy - 16); ctx.stroke(); }
+        });
+        // 耐心條
+        A.rr(ctx, 80, 6, 9, ch - 12, 4.5); ctx.fillStyle = '#efe6d6'; ctx.fill();
+        const hh = (ch - 12) * LC.U.clamp(ratio, 0, 1); A.rr(ctx, 80, 6 + (ch - 12) - hh, 9, hh, 4.5); ctx.fillStyle = ratio > 0.5 ? '#6cc36a' : ratio > 0.25 ? '#f2b833' : '#e34b3f'; ctx.fill();
+        ctx.restore();
+      }
+      ctx.restore();
+    }
+    // 櫃檯
+    ctx.fillStyle = R.top; ctx.fillRect(0, 330, KW, 26); ctx.fillStyle = 'rgba(90,62,46,0.25)'; ctx.fillRect(0, 354, KW, 4);
+    ctx.fillStyle = R.counter; ctx.fillRect(0, 356, KW, LC.KH - 356);
+    ctx.fillStyle = R.counter2; for (let x = 0; x < KW; x += 40) ctx.fillRect(x, 356, 20, LC.KH - 356);
+    ctx.fillStyle = 'rgba(0,0,0,0.12)'; ctx.fillRect(0, 356, KW, LC.KH - 356);
+    const panel = (b, title) => { A.rr(ctx, b.x, b.y, b.w, b.h, 14); ctx.fillStyle = 'rgba(255,250,240,0.93)'; ctx.fill(); ctx.strokeStyle = INK; ctx.lineWidth = 2.5; ctx.stroke(); if (title) { ctx.fillStyle = '#8a6a52'; ctx.font = '700 14px "Zen Maru Gothic", "Huninn", sans-serif'; ctx.textAlign = 'left'; ctx.fillText(title, b.x + 10, b.y + 20); } };
+    const ring = (x, y, r, p, col) => { ctx.strokeStyle = 'rgba(0,0,0,0.15)'; ctx.lineWidth = 5; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.stroke(); ctx.strokeStyle = col; ctx.beginPath(); ctx.arc(x, y, r, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * LC.U.clamp(p, 0, 1)); ctx.stroke(); };
+    // 飲料機
+    if (k.cups.length) {
+      const b = L.drink; panel(b, R.drink.item === 'soda' ? '汽水機' : '檸檬水');
+      A.rr(ctx, b.x + 14, b.y + 28, b.w - 28, 22, 6); ctx.fillStyle = R.drink.item === 'soda' ? '#e34b3f' : '#f2c84b'; ctx.fill();
+      k.cups.forEach((c, i) => { const x = b.x + 39 + i * 72, y = b.y + 130; if (c.f >= 1) A.c(ctx, x, y - 4, 38, 'rgba(255,236,150,' + (0.35 + 0.2 * Math.sin(t * 6)) + ')'); A.food(ctx, R.drink.item, x, y, 1.2, { fill: c.f, t }); if (c.f < 1) ring(x, y + 56, 9, c.f, '#6cc36a'); });
+    }
+    // 出餐架
+    if (k.rack.length) { const b = L.rack; panel(b, '保溫架'); k.rack.forEach((it, i) => { const y = b.y + 64 + i * 56; ctx.fillStyle = 'rgba(138,95,59,0.25)'; ctx.fillRect(b.x + 12, y + 20, b.w - 24, 5); if (it) A.food(ctx, it, b.x + b.w / 2, y + 8, 0.95); }); }
+    // 烤架／煎鍋
+    {
+      const b = L.cook1, n = k.c1.length, hh = (b.h - 36) / n; panel(b, R.cook1.name);
+      k.c1.forEach((s, i) => {
+        const cx = b.x + b.w / 2, cy = b.y + 32 + i * hh + hh / 2;
+        if (R.key === 'burger') { A.rr(ctx, b.x + 12, cy - hh / 2 + 4, b.w - 24, hh - 8, 8); ctx.fillStyle = '#3d3936'; ctx.fill(); ctx.strokeStyle = '#6b6560'; ctx.lineWidth = 2; for (let gx = b.x + 22; gx < b.x + b.w - 16; gx += 14) { ctx.beginPath(); ctx.moveTo(gx, cy - hh / 2 + 8); ctx.lineTo(gx, cy + hh / 2 - 8); ctx.stroke(); } }
+        else { A.e(ctx, cx, cy, 52, Math.min(26, hh / 2 - 2), '#2e2b2a', INK, 2.5); ctx.strokeStyle = '#2e2b2a'; ctx.lineWidth = 7; ctx.beginPath(); ctx.moveTo(cx + 50, cy); ctx.lineTo(cx + 76, cy - 4); ctx.stroke(); }
+        if (s.s === 'e') return;
+        const raw = R.cook1.raw, out = R.cook1.out, sc = Math.min(1.1, hh / 46);
+        if (s.s === 'c') { const p = s.t / R.cook1.cook; ctx.globalAlpha = 1; A.food(ctx, p > 0.6 ? out : raw, cx - 10, cy, sc); ring(cx + 52, cy, 9, p, '#f2b833'); if (Math.sin(t * 20 + i) > 0) A.c(ctx, cx - 30 + (t * 37 % 40), cy - 14, 2, 'rgba(255,255,255,0.8)'); }
+        else if (s.s === 'd') { A.c(ctx, cx - 10, cy, 34, 'rgba(120,220,120,' + (0.25 + 0.15 * Math.sin(t * 8)) + ')'); A.food(ctx, out, cx - 10, cy, sc); ring(cx + 52, cy, 9, 1 - (s.t - R.cook1.cook) / (R.cook1.burn - R.cook1.cook), s.t > R.cook1.burn - 2.5 ? '#e34b3f' : '#6cc36a'); }
+        else { A.food(ctx, R.key === 'burger' ? 'burnt' : 'burnt', cx - 10, cy, sc); for (let j = 0; j < 3; j++) { const p = (t * 0.8 + j / 3) % 1; A.c(ctx, cx - 16 + j * 10, cy - 14 - p * 30, 6 + p * 8, `rgba(80,80,80,${0.5 * (1 - p)})`); } }
+      });
+    }
+    // 組裝盤
+    {
+      const b = L.plates, n = k.plates.length, hh = (b.h - 34) / n; panel(b, '組裝盤');
+      k.plates.forEach((p, i) => {
+        const cx = b.x + b.w / 2, cy = b.y + 30 + i * hh + hh / 2;
+        const d = k.dishOf(p);
+        if (d) { A.rr(ctx, b.x + 8, cy - hh / 2 + 3, b.w - 16, hh - 6, 12); ctx.fillStyle = 'rgba(255,226,120,' + (0.35 + 0.15 * Math.sin(t * 6)) + ')'; ctx.fill(); }
+        A.plate(ctx, p, cx - 18, cy + 2, Math.min(1.1, hh / 62), R.key);
+        if (d) { ctx.fillStyle = INK; ctx.font = '700 13px "Zen Maru Gothic", "Huninn", sans-serif'; ctx.textAlign = 'right'; ctx.fillText(R.dishes[d].n, b.x + b.w - 12, cy + 4); }
+      });
+    }
+    // 炸鍋
+    if (k.c2.length) {
+      const b = L.cook2; panel(b, R.cook2.name);
+      k.c2.forEach((s, i) => {
+        const x = b.x + 58 + i * 107, y = b.y + 92;
+        A.rr(ctx, x - 44, y - 50, 88, 92, 12); ctx.fillStyle = '#c9cdd1'; ctx.fill(); ctx.strokeStyle = INK; ctx.lineWidth = 2.5; ctx.stroke();
+        A.rr(ctx, x - 36, y - 40, 72, 70, 8); ctx.fillStyle = '#e9b44c'; ctx.fill();
+        if (s.s !== 'e') { const raw = R.cook2.types.find(q => q.out === s.k).raw; const done = s.s !== 'c' || s.t > R.cook2.cook * 0.6; if (s.s === 'b') { A.food(ctx, s.k, x, y, 0.9, { loose: true }); ctx.fillStyle = 'rgba(40,30,25,0.6)'; ctx.fillRect(x - 34, y - 38, 68, 66); } else A.food(ctx, done ? s.k : raw, x, y, 0.9, { loose: true });
+          if (s.s === 'c') { ring(x + 32, y - 34, 9, s.t / R.cook2.cook, '#f2b833'); for (let j = 0; j < 4; j++) A.c(ctx, x - 28 + ((t * 50 + j * 17) % 56), y + 22 - ((t * 30 + j * 11) % 20), 2.2, 'rgba(255,250,220,0.8)'); }
+          if (s.s === 'd') { A.c(ctx, x, y, 34, 'rgba(120,220,120,' + (0.2 + 0.15 * Math.sin(t * 8)) + ')'); ring(x + 32, y - 34, 9, 1 - (s.t - R.cook2.cook) / (R.cook2.burn - R.cook2.cook), '#6cc36a'); }
+        }
+      });
+      for (const ty of k.useCook2) { const b2 = L[ty.box]; panel(b2); A.food(ctx, ty.raw, b2.x + b2.w / 2, b2.y + 66, 1.15, { loose: true }); ctx.fillStyle = '#8a6a52'; ctx.font = '700 13px "Huninn", sans-serif'; ctx.textAlign = 'center'; ctx.fillText(R.dishes[ty.out].n, b2.x + b2.w / 2, b2.y + b2.h - 10); }
+    }
+    // 補給
+    { const b = L.box1; panel(b, R.key === 'burger' ? '肉餅' : '雞蛋'); for (let j = 0; j < 3; j++) A.food(ctx, R.box1, b.x + 50 + j * 36, b.y + 92 - (j % 2) * 16, 0.85); }
+    { const b = L.base; panel(b); A.food(ctx, R.base, b.x + b.w / 2, b.y + 52, 1.25); ctx.fillStyle = '#8a6a52'; ctx.font = '700 13px "Huninn", sans-serif'; ctx.textAlign = 'center'; ctx.fillText(R.base === 'bun' ? '麵包' : '白飯', b.x + b.w / 2, b.y + b.h - 8); }
+    const addName = { cheese: '起司', lettuce: '生菜', tomato: '番茄', ketchup: '番茄醬', curry: '咖哩' };
+    for (const a of k.adds) { const b = L[a.role]; panel(b); if (a.item === 'ketchup') { A.rr(ctx, b.x + b.w / 2 - 12, b.y + 18, 24, 50, 8); ctx.fillStyle = '#e34b3f'; ctx.fill(); ctx.strokeStyle = INK; ctx.lineWidth = 2; ctx.stroke(); ctx.fillStyle = '#fff'; ctx.fillRect(b.x + b.w / 2 - 6, b.y + 10, 12, 10); } else A.food(ctx, a.item, b.x + b.w / 2, b.y + 48, 1.25); ctx.fillStyle = '#8a6a52'; ctx.font = '700 13px "Huninn", sans-serif'; ctx.textAlign = 'center'; ctx.fillText(addName[a.item], b.x + b.w / 2, b.y + b.h - 8); }
+    // 垃圾桶
+    { const b = L.trash; A.rr(ctx, b.x, b.y, b.w, b.h, 14); ctx.fillStyle = k.trash ? '#f6c9be' : 'rgba(255,250,240,0.85)'; ctx.fill(); ctx.strokeStyle = k.trash ? '#e34b3f' : INK; ctx.lineWidth = k.trash ? 4 : 2.5; ctx.stroke();
+      const x = b.x + b.w / 2, y = b.y + 70; A.rr(ctx, x - 20, y - 22, 40, 46, 6); ctx.fillStyle = '#7f8c8d'; ctx.fill(); ctx.strokeStyle = INK; ctx.lineWidth = 2; ctx.stroke(); A.rr(ctx, x - 24, y - 30 - (k.trash ? 6 : 0), 48, 9, 4); ctx.fillStyle = '#95a5a6'; ctx.fill(); ctx.stroke();
+      ctx.fillStyle = k.trash ? '#c94f4f' : '#8a6a52'; ctx.font = '700 12px "Huninn", sans-serif'; ctx.textAlign = 'center'; ctx.fillText(k.trash ? '點要丟的' : '丟棄', x, b.y + b.h - 8); }
+    // 特效
+    for (const f of k.fx) {
+      if (f.k === 'fly') { const p = LC.U.ease(f.t / 0.45); ctx.save(); ctx.globalAlpha = 1 - p * 0.3; A.dish(ctx, R, f.d, LC.U.lerp(f.x0, f.x1, p), LC.U.lerp(f.y0, f.y1, p) - Math.sin(p * Math.PI) * 60, 0.9 - p * 0.2, t); ctx.restore(); }
+      else if (f.k === 'txt') { ctx.save(); ctx.globalAlpha = 1 - f.t / 1.1; ctx.font = '800 26px "Zen Maru Gothic", "Huninn", sans-serif'; ctx.textAlign = 'center'; ctx.lineWidth = 6; ctx.strokeStyle = '#fff'; ctx.strokeText(f.s, f.x, f.y - f.t * 40); ctx.fillStyle = f.col; ctx.fillText(f.s, f.x, f.y - f.t * 40); ctx.restore(); }
+      else if (f.k === 'no') { const sh = Math.sin(f.t * 60) * 6; ctx.strokeStyle = '#e34b3f'; ctx.lineWidth = 6; ctx.beginPath(); ctx.moveTo(f.x - 14 + sh, f.y - 14); ctx.lineTo(f.x + 14 + sh, f.y + 14); ctx.moveTo(f.x + 14 + sh, f.y - 14); ctx.lineTo(f.x - 14 + sh, f.y + 14); ctx.stroke(); }
+    }
+    if (k.lastTap && k.anim - k.lastTap.t < 0.35 && opt.showWho) { const p = (k.anim - k.lastTap.t) / 0.35; A.c(ctx, k.lastTap.x, k.lastTap.y, 20 + p * 30, null, k.lastTap.who === 2 ? `rgba(90,150,240,${1 - p})` : `rgba(240,120,90,${1 - p})`, 5); }
+    A.hud(ctx, k, t, opt);
+  },
+  hud(ctx, k, t, opt) {
+    const KW = LC.KW;
+    ctx.fillStyle = 'rgba(90,62,46,0.88)'; ctx.fillRect(0, 0, KW, 46);
+    const left = Math.max(0, Math.ceil(k.dur - k.t));
+    A.rr(ctx, 10, 7, 104, 32, 16); ctx.fillStyle = left <= 10 && !k.over ? (Math.sin(t * 10) > 0 ? '#e34b3f' : '#fff4dc') : '#fff4dc'; ctx.fill();
+    ctx.fillStyle = '#5a3e2e'; ctx.font = '800 20px "Zen Maru Gothic", sans-serif'; ctx.textAlign = 'center'; ctx.fillText(`⏱ ${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')}`, 62, 30);
+    const bx = 126, bw = 400, tg = k.target, mx = tg * 1.85, p = Math.min(1, k.coins / mx);
+    A.rr(ctx, bx, 12, bw, 22, 11); ctx.fillStyle = '#5c4232'; ctx.fill();
+    A.rr(ctx, bx, 12, Math.max(22, bw * p), 22, 11); ctx.fillStyle = A.grad(ctx, 12, 34, '#ffd95a', '#f2a530'); ctx.fill();
+    for (const m of [1, 1.35, 1.7]) { const x = bx + bw * (tg * m / mx); ctx.fillStyle = k.coins >= tg * m ? '#ffd95a' : '#a89180'; ctx.font = '18px sans-serif'; ctx.fillText('★', x, 30); }
+    ctx.fillStyle = '#fff'; ctx.font = '800 15px "Zen Maru Gothic", sans-serif'; ctx.textAlign = 'left'; ctx.fillText(`$${k.coins} / ${tg}`, bx + 10, 29);
+    if (k.combo >= 2) { const s = 1 + Math.max(0, 0.3 - (4.5 - k.comboT)) ; ctx.save(); ctx.translate(624, 23); ctx.scale(s, s); A.rr(ctx, -58, -16, 116, 32, 16); ctx.fillStyle = '#3f9be0'; ctx.fill(); ctx.strokeStyle = '#bfe6ff'; ctx.lineWidth = 3; ctx.stroke(); ctx.fillStyle = '#fff'; ctx.font = '800 18px "Zen Maru Gothic", sans-serif'; ctx.textAlign = 'center'; ctx.fillText(`${k.combo} 連擊`, 0, 7); ctx.restore(); }
+    else if (opt.label) { ctx.fillStyle = '#fff4dc'; ctx.font = '800 17px "Zen Maru Gothic", "Huninn", sans-serif'; ctx.textAlign = 'center'; ctx.fillText(opt.label, 624, 30); }
+  },
+};
+})();
+
+</script>
+<script>
+/* 模組 5／6：連線合作（網站版）— 用 PeerJS 做手機對手機的點對點連線。主持人跑遊戲並送出狀態，隊友送出點擊 */
+(function () {
+'use strict';
+const LC = window.LC;
+const PREFIX = 'cozycounter-chef-v1-';
+const CHARS = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+
+LC.Net = {
+  peer: null, conn: null, role: null, code: '', partner: null, last: 0,
+  newCode() { let s = ''; for (let i = 0; i < 5; i++) s += CHARS[Math.floor(Math.random() * CHARS.length)]; return s; },
+  err(code) { const e = new Error(code); e.code = code; return e; },
+  available() { return typeof window.Peer === 'function'; },
+  open(role, code) {
+    return new Promise((resolve, reject) => {
+      if (!this.available()) return reject(this.err('no-lib'));
+      this.close();
+      this.role = role; this.code = code; this.partner = null;
+      const opts = { debug: 0, config: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun1.l.google.com:19302' }] } };
+      let settled = false;
+      const ok = () => { if (!settled) { settled = true; resolve(); } };
+      const fail = c => { if (!settled) { settled = true; this.close(); reject(this.err(c)); } else if (this.onLost) this.onLost(c); };
+      const timer = setTimeout(() => fail('timeout'), 15000);
+      const peer = this.peer = role === 'host' ? new window.Peer(PREFIX + code, opts) : new window.Peer(opts);
+      peer.on('error', e => { clearTimeout(timer); fail(e && e.type ? e.type : 'network'); });
+      peer.on('disconnected', () => { try { peer.reconnect(); } catch (e) { /* 略過 */ } });
+      if (role === 'host') {
+        peer.on('open', () => { clearTimeout(timer); ok(); });
+        peer.on('connection', conn => {
+          if (this.conn && this.conn.open) { conn.on('open', () => { conn.send({ t: 'full' }); setTimeout(() => conn.close(), 300); }); return; }
+          this.bind(conn);
+        });
+      } else {
+        peer.on('open', () => {
+          const conn = peer.connect(PREFIX + code, { reliable: true });
+          this.bind(conn, () => { clearTimeout(timer); ok(); });
+        });
+      }
+    });
+  },
+  bind(conn, onOpen) {
+    this.conn = conn;
+    conn.on('open', () => { this.partner = conn.peer; if (onOpen) onOpen(); if (this.onPartner) this.onPartner(true); });
+    conn.on('data', d => {
+      if (!d || typeof d !== 'object') return;
+      if (d.t === 'tap' && this.role === 'host' && this.onTap) this.onTap(+d.x || 0, +d.y || 0);
+      else if (d.t === 's' && this.role === 'guest' && this.onState) this.onState(d.s);
+      else if (d.t === 'full' && this.role === 'guest' && this.onFull) this.onFull();
+    });
+    const gone = () => { if (this.conn !== conn) return; this.conn = null; const had = !!this.partner; this.partner = null; if (had && this.onPartner) this.onPartner(false); };
+    conn.on('close', gone); conn.on('error', gone);
+  },
+  close() {
+    try { if (this.conn) this.conn.close(); } catch (e) { /* 略過 */ }
+    try { if (this.peer) this.peer.destroy(); } catch (e) { /* 略過 */ }
+    this.conn = null; this.peer = null; this.role = null; this.partner = null;
+  },
+  push(s, force) {
+    if (this.role !== 'host' || !this.conn || !this.conn.open) return;
+    const now = performance.now(); if (!force && now - this.last < 70) return; this.last = now;
+    try { this.conn.send({ t: 's', s }); } catch (e) { /* 略過 */ }
+  },
+  tap(x, y) {
+    if (this.role !== 'guest' || !this.conn || !this.conn.open) return;
+    try { this.conn.send({ t: 'tap', x: Math.round(x), y: Math.round(y) }); } catch (e) { /* 略過 */ }
+  },
+};
+})();
+
+</script>
+<script>
+/* 模組 6／6：介面 — 標題與模式、選關與升級、單人／同機對戰（上下分屏）／同機合作／連線合作的畫面配置、多點觸控、倒數與結算 */
+(function () {
+'use strict';
+const LC = window.LC;
+const $ = id => document.getElementById(id);
+const S = () => LC.Save.d;
+
+const UI = LC.UI = {
+  mode: 'solo', rest: 'burger', run: null, dpr: 1, t: 0,
+
+  init() {
+    LC.Save.load();
+    this.cv = $('cv'); this.ctx = this.cv.getContext('2d');
+    window.addEventListener('resize', () => this.resize());
+    if (window.ResizeObserver) new ResizeObserver(() => this.resize()).observe($('game'));
+    this.cv.addEventListener('pointerdown', e => this.pointer(e));
+    document.querySelectorAll('[data-mode]').forEach(b => { b.onclick = () => { LC.Audio.init(); this.pickMode(b.dataset.mode); }; });
+    $('bBack').onclick = () => this.show('title');
+    $('oBack').onclick = () => { LC.Net.close(); this.show('title'); };
+    $('bShop').onclick = () => this.shop();
+    $('bPause').onclick = () => this.pause();
+    $('bPause2').onclick = () => this.pause();
+    $('bSound').onclick = () => { LC.Audio.muted = !LC.Audio.muted; S().muted = LC.Audio.muted; LC.Save.save(); this.syncSound(); };
+    $('bHost').onclick = () => this.netHost();
+    $('bJoin').onclick = () => { LC.Audio.init(); this.netJoin(); };
+    $('bAgain').onclick = () => { const r = this.run; if (r) this.start(r.rk, r.li); };
+    $('bQuit').onclick = () => this.leaveGame();
+    LC.Net.onPartner = on => this.netPartner(on);
+    LC.Net.onState = s => this.netState(s);
+    LC.Net.onFull = () => { this.netStatus('這個房間已經有兩個人了。'); LC.Net.close(); };
+    LC.Net.onLost = c => this.toast('連線中斷（' + c + '）');
+    LC.Net.onTap = (x, y) => { const r = this.run; if (r && r.phase === 'play' && !r.paused) r.ks[0].tap(x, y, 2); };
+    this.syncSound(); this.show('title'); this.titleArt();
+    const m = location.hash.match(/join=([A-Za-z0-9]{5})/);
+    if (m) { this.mode = 'net'; this.show('online'); $('oCode').value = m[1].toUpperCase(); this.netStatus('點「加入房間」開始連線。'); $('bJoin').classList.add('pulse'); }
+    let last = performance.now();
+    const loop = now => { const dt = Math.min(0.05, Math.max(0, (now - last) / 1000)); last = now; try { this.frame(dt); } catch (e) { console.error(e); } requestAnimationFrame(loop); };
+    requestAnimationFrame(loop);
+  },
+  syncSound() { $('bSound').textContent = LC.Audio.muted ? '音效：關' : '音效：開'; },
+  show(id) { for (const s of ['title', 'select', 'online', 'game']) $(s).hidden = s !== id; if (id === 'game') this.resize(); if (id !== 'game') LC.Audio.stopMusic(); },
+
+  pickMode(m) {
+    this.mode = m;
+    if (m === 'net') { this.show('online'); this.netStatus('選擇開房間或加入隊友的房間。'); return; }
+    this.openSelect();
+  },
+  modeName() { return { solo: '單人', vs: '同機對戰', coop: '同機合作', net: '連線合作' }[this.mode]; },
+
+  /* ---------- 選關 ---------- */
+  openSelect() {
+    this.show('select');
+    $('selMode').textContent = this.modeName();
+    $('selCoins').textContent = S().coins;
+    $('restTabs').innerHTML = LC.REST_ORDER.map(k => { const R = LC.REST[k], lock = !LC.Save.unlocked(k, 0); return `<button class="rt${this.rest === k ? ' on' : ''}${lock ? ' lock' : ''}" data-rest="${k}"><b>${R.n}</b><small>${lock ? '漢堡屋第 4 關過關後開放' : R.sub}</small></button>`; }).join('');
+    $('restTabs').querySelectorAll('[data-rest]').forEach(b => { b.onclick = () => { if (!LC.Save.unlocked(b.dataset.rest, 0)) return this.toast('先在森林漢堡屋通過第 4 關'); this.rest = b.dataset.rest; this.openSelect(); }; });
+    const R = LC.REST[this.rest];
+    $('levels').innerHTML = R.levels.map((lv, i) => {
+      const st = S().stars[this.rest][i] || 0, lock = !LC.Save.unlocked(this.rest, i);
+      return `<button class="lv${lock ? ' lock' : ''}" data-lv="${i}"><span class="num">${i + 1}</span><canvas width="180" height="64" data-menu="${i}"></canvas><span class="st">${[0, 1, 2].map(k => `<i class="${k < st ? 'on' : ''}">★</i>`).join('')}</span><small>${lock ? '尚未解鎖' : `目標 $${this.mode === 'coop' || this.mode === 'net' ? Math.round(lv.target * 1.5) : lv.target}・${lv.dur} 秒`}</small></button>`;
+    }).join('');
+    $('levels').querySelectorAll('[data-menu]').forEach(c => { const x = c.getContext('2d'), lv = R.levels[+c.dataset.menu]; x.clearRect(0, 0, 180, 64); lv.menu.forEach((d, j) => LC.Art.dish(x, R, d, 22 + j * 27, 38, 0.42, 1)); });
+    $('levels').querySelectorAll('[data-lv]').forEach(b => { b.onclick = () => { const i = +b.dataset.lv; if (!LC.Save.unlocked(this.rest, i)) return this.toast('先通過前一關'); if (this.mode === 'net' && !LC.Net.partner) return this.toast('隊友還沒加入房間'); this.start(this.rest, i); }; });
+  },
+  shop() {
+    const R = LC.REST[this.rest], up = S().up[this.rest];
+    const rows = LC.UPGRADES.map(u => { const lv = up[u.k] || 0, max = u.max || u.p.length, p = u.p[lv]; return `<div class="row"><div><b>${u.n}</b> <span class="lvl">Lv ${lv}/${max}</span><small>${u.d}</small></div>${lv >= max ? '<span class="lvl">已滿</span>' : `<button class="btn sm" data-up="${u.k}">$${p}</button>`}</div>`; }).join('');
+    this.modal(`${R.n}・升級`, `<p class="hint">持有金幣 $${S().coins}。升級只影響這間餐廳。</p><div class="rows">${rows}</div>`, [{ t: '關閉', f: () => this.openSelect() }]);
+    document.querySelectorAll('[data-up]').forEach(b => { b.onclick = () => { const u = LC.UPGRADES.find(q => q.k === b.dataset.up), lv = up[u.k] || 0; if (S().coins < u.p[lv]) return this.toast('金幣不夠'); S().coins -= u.p[lv]; up[u.k] = lv + 1; LC.Save.save(); LC.Audio.sfx('coin'); this.shop(); }; });
+  },
+
+  /* ---------- 開局 ---------- */
+  start(rk, li, guest) {
+    const seed = (Math.random() * 1e9) | 0;
+    const mk = coop => { const k = new LC.Kitchen(rk, li, { seed, coop }); k.onEnd = () => this.checkEnd(); return k; };
+    const ks = this.mode === 'vs' ? [mk(false), mk(false)] : [mk(this.mode === 'coop' || this.mode === 'net')];
+    if (this.mode === 'vs') ks[1].silent = true;
+    if (guest) { ks[0].silent = true; ks[0].onEnd = () => this.checkEnd(); }
+    this.run = { rk, li, ks, phase: 'count', count: 3.2, paused: false, guest: !!guest };
+    this.show('game'); this.layout();
+    $('bPause').hidden = this.mode === 'vs'; $('mid').hidden = this.mode !== 'vs';
+    $('bPause').disabled = !!guest; $('midBtns').hidden = true; $('midTxt').textContent = '上下兩位各自經營，時間到比誰賺得多';
+    LC.Audio.startMusic();
+  },
+  checkEnd() {
+    const r = this.run; if (!r || r.phase === 'end') return;
+    if (!r.ks.every(k => k.over)) return;
+    r.phase = 'end'; r.endT = 0;
+    const k = r.ks[0], R = LC.REST[r.rk];
+    if (this.mode === 'vs') {
+      const [a, b] = r.ks; S().coins += Math.round(Math.max(a.coins, b.coins) / 2); LC.Save.save(); LC.Audio.sfx('win');
+      $('midTxt').textContent = a.coins === b.coins ? '平手！' : a.coins > b.coins ? '下方玩家獲勝！' : '上方玩家獲勝！';
+      $('midBtns').hidden = false;
+      return;
+    }
+    const st = k.stars || 0;
+    if (!r.guest) { S().stars[r.rk][r.li] = Math.max(S().stars[r.rk][r.li] || 0, st); }
+    S().coins += k.coins; LC.Save.save();
+    if (this.mode === 'net' && !r.guest) LC.Net.push({ ph: 'end', r: r.rk, li: r.li, k: k.ser() }, true);
+    LC.Audio.sfx(st ? 'win' : 'lose');
+    setTimeout(() => {
+      const next = r.li + 1 < R.levels.length && LC.Save.unlocked(r.rk, r.li + 1);
+      const btns = r.guest ? [{ t: '等主持人選下一關', f: () => {} }, { t: '離開房間', f: () => { LC.Net.close(); this.show('title'); } }]
+        : [...(next ? [{ t: '下一關', f: () => this.start(r.rk, r.li + 1) }] : []), { t: '再玩一次', f: () => this.start(r.rk, r.li) }, { t: '選關', f: () => this.leaveGame() }];
+      this.modal(st ? `過關！${'★'.repeat(st)}${'☆'.repeat(3 - st)}` : '差一點點…', `<div class="stats"><span>賺到金幣<b>$${k.coins}</b></span><span>目標<b>$${k.target}</b></span><span>服務道數<b>${k.served}</b></span><span>最高連擊<b>${k.maxCombo}</b></span><span>生氣離開<b>${k.angry}</b></span><span>錢包<b>$${S().coins}</b></span></div>${st ? '' : '<p class="hint">提示：先把肉餅或煎蛋放上去再組盤，烤好的東西別放太久會燒焦；用連擊多拿獎勵。</p>'}`, btns);
+    }, 900);
+  },
+  leaveGame() {
+    if (this.mode === 'net' && LC.Net.role === 'host') LC.Net.push({ ph: 'lobby' }, true);
+    this.run = null; this.closeModal();
+    if (this.mode === 'net' && LC.Net.role === 'guest') { this.show('online'); return; }
+    this.openSelect();
+  },
+  pause() {
+    const r = this.run; if (!r || r.phase === 'end' || r.guest) return;
+    r.paused = true;
+    this.modal('暫停', `<p class="hint">${this.modeName()}・${LC.REST[r.rk].n} 第 ${r.li + 1} 關</p>`, [{ t: '繼續', f: () => { r.paused = false; } }, { t: '重新開始', f: () => this.start(r.rk, r.li) }, { t: '離開', f: () => this.leaveGame() }]);
+  },
+
+  /* ---------- 畫面配置與觸控 ---------- */
+  resize() {
+    const g = $('game').getBoundingClientRect(); if (g.width < 10) return;
+    this.dpr = Math.min(2, window.devicePixelRatio || 1); this.W = g.width; this.H = g.height;
+    this.cv.width = Math.round(g.width * this.dpr); this.cv.height = Math.round(g.height * this.dpr);
+    this.cv.style.width = g.width + 'px'; this.cv.style.height = g.height + 'px';
+    this.layout();
+  },
+  layout() {
+    const r = this.run; if (!r || !this.W) return;
+    const W = this.W, H = this.H, mid = 44;
+    r.vps = this.mode === 'vs' ? [{ k: 0, x: 0, y: H / 2 + mid / 2, w: W, h: H / 2 - mid / 2, rot: false, who: 1 }, { k: 1, x: 0, y: 0, w: W, h: H / 2 - mid / 2, rot: true, who: 2 }]
+      : [{ k: 0, x: 0, y: 0, w: W, h: H, rot: false, who: 1 }];
+    for (const v of r.vps) { v.s = Math.min(v.w / LC.KW, v.h / LC.KH); v.ox = v.x + (v.w - LC.KW * v.s) / 2; v.oy = v.y + (v.h - LC.KH * v.s) / 2; v.cx = v.x + v.w / 2; v.cy = v.y + v.h / 2; }
+  },
+  pointer(e) {
+    LC.Audio.init();
+    const r = this.run; if (!r || !r.vps || r.paused || r.phase !== 'play' || this.modalOpen) return;
+    e.preventDefault();
+    const rc = this.cv.getBoundingClientRect(); let px = e.clientX - rc.left, py = e.clientY - rc.top;
+    for (const v of r.vps) {
+      if (px < v.x || px > v.x + v.w || py < v.y || py > v.y + v.h) continue;
+      let qx = px, qy = py; if (v.rot) { qx = 2 * v.cx - px; qy = 2 * v.cy - py; }
+      const lx = (qx - v.ox) / v.s, ly = (qy - v.oy) / v.s, k = r.ks[v.k];
+      if (r.guest) { LC.Net.tap(lx, ly); k.lastTap = { x: lx, y: ly, who: 2, t: k.anim }; LC.Audio.sfx('tap'); }
+      else k.tap(lx, ly, v.who);
+      return;
+    }
+  },
+
+  /* ---------- 主迴圈 ---------- */
+  frame(dt) {
+    this.t += dt;
+    const r = this.run; if (!r) return;
+    if (!r.paused && !this.modalOpen) {
+      if (r.guest) { for (const k of r.ks) { k.anim += dt; for (const f of k.fx) f.t += dt; } }
+      else if (r.phase === 'count') { const before = Math.ceil(r.count); r.count -= dt; if (Math.ceil(r.count) !== before && r.count > 0) LC.Audio.sfx('tap'); if (r.count <= 0) { r.phase = 'play'; LC.Audio.sfx('go'); } for (const k of r.ks) k.anim += dt; }
+      else for (const k of r.ks) k.update(dt);
+      if (r.phase === 'end') { r.endT += dt; for (const k of r.ks) { k.anim += dt; for (const f of k.fx) f.t += dt; } }
+    }
+    if (this.mode === 'net' && LC.Net.role === 'host' && r.phase !== 'end') LC.Net.push({ ph: r.phase, r: r.rk, li: r.li, c: Math.ceil(r.count), k: r.ks[0].ser() });
+    this.render();
+  },
+  render() {
+    const r = this.run, ctx = this.ctx, d = this.dpr; if (!r.vps) this.layout(); if (!r.vps) return;
+    ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.fillStyle = '#3b2a20'; ctx.fillRect(0, 0, this.cv.width, this.cv.height);
+    for (const v of r.vps) {
+      const k = r.ks[v.k];
+      ctx.save(); ctx.setTransform(d, 0, 0, d, 0, 0);
+      ctx.beginPath(); ctx.rect(v.x, v.y, v.w, v.h); ctx.clip();
+      if (v.rot) { ctx.translate(v.cx, v.cy); ctx.rotate(Math.PI); ctx.translate(-v.cx, -v.cy); }
+      ctx.translate(v.ox, v.oy); ctx.scale(v.s, v.s);
+      const label = this.mode === 'vs' ? (v.who === 1 ? '玩家一' : '玩家二') : this.mode === 'net' ? (r.guest ? '隊友' : '主持人') : '';
+      LC.Art.kitchen(ctx, k, k.anim, { showWho: this.mode === 'net' || this.mode === 'coop', label });
+      // 倒數與結束
+      if (r.phase === 'count') this.bigText(ctx, Math.ceil(r.count) > 0 ? String(Math.ceil(r.count)) : '開始！', '#fff4dc');
+      if (r.phase === 'end' && this.mode === 'vs') { const o = r.ks[1 - v.k], win = k.coins > o.coins, tie = k.coins === o.coins; this.bigText(ctx, tie ? '平手' : win ? '你贏了！' : '再接再厲', win ? '#ffd95a' : '#fff4dc', `$${k.coins}・${k.served} 道・最高 ${k.maxCombo} 連擊`); }
+      else if (k.over && r.phase !== 'count') this.bigText(ctx, '時間到！', '#fff4dc');
+      ctx.restore();
+    }
+  },
+  bigText(ctx, s, col, sub) {
+    ctx.fillStyle = 'rgba(40,25,15,0.45)'; ctx.fillRect(0, 380, LC.KW, sub ? 210 : 160);
+    ctx.textAlign = 'center'; ctx.font = '800 92px "Zen Maru Gothic", "Huninn", sans-serif'; ctx.lineWidth = 12; ctx.strokeStyle = '#5a3e2e';
+    ctx.strokeText(s, LC.KW / 2, 500); ctx.fillStyle = col; ctx.fillText(s, LC.KW / 2, 500);
+    if (sub) { ctx.font = '700 28px "Zen Maru Gothic", "Huninn", sans-serif'; ctx.fillStyle = '#fff'; ctx.fillText(sub, LC.KW / 2, 560); }
+  },
+
+  /* ---------- 連線合作 ---------- */
+  netStatus(msg) { $('oStatus').innerHTML = msg; },
+  netWhy(e) {
+    const c = (e && e.code) || '';
+    const why = {
+      'no-lib': '連線元件沒有載入，請確認網路後重新整理頁面。',
+      'peer-unavailable': '找不到這個房間。請確認房號，或請主持人先開房間、並保持畫面開著。',
+      'unavailable-id': '這個房號剛好被用掉了，請再按一次「開房間」。',
+      'timeout': '連線逾時。兩支手機都連上網路後再試一次；行動網路不通時，可以改用 Wi-Fi。',
+      'network': '網路連線有問題，請確認網路後再試。', 'server-error': '連線伺服器暫時沒有回應，請稍後再試。', 'socket-error': '連線伺服器暫時沒有回應，請稍後再試。',
+      'browser-incompatible': '這個瀏覽器不支援即時連線，請改用手機內建的 Chrome 或 Safari。', 'webrtc': '兩支手機之間打不通，換個網路（例如改用 Wi-Fi）再試。',
+    }[c];
+    return (why || '連線失敗，請稍後再試。') + (c ? `<br><small>（代碼：${c}）</small>` : '');
+  },
+  invite(code) { return location.href.split('#')[0] + '#join=' + code; },
+  async netHost() {
+    const code = LC.Net.newCode();
+    this.netStatus('正在開房間…');
+    try { await LC.Net.open('host', code); }
+    catch (e) { return this.netStatus(this.netWhy(e)); }
+    const link = this.invite(code);
+    this.netStatus(`房號 <b class="code">${code}</b><br>把邀請連結傳給朋友，對方點開就會自動加入；也可以請對方在「加入房間」輸入房號。<div class="inv"><button class="btn sm" id="bInvite">分享邀請連結</button><button class="btn sm alt" id="bCopy">複製連結</button></div><span id="oWait">等待隊友加入…（請保持這個畫面開著）</span>`);
+    $('bInvite').onclick = async () => { try { if (navigator.share) { await navigator.share({ title: '暖暖小食堂', text: `一起來顧店！房號 ${code}`, url: link }); return; } } catch (e) { /* 使用者取消 */ return; } this.copy(link); };
+    $('bCopy').onclick = () => this.copy(link);
+  },
+  copy(text) {
+    const done = () => this.toast('已複製邀請連結');
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, () => this.toast(text));
+    else { const t = document.createElement('textarea'); t.value = text; document.body.appendChild(t); t.select(); try { document.execCommand('copy'); done(); } catch (e) { this.toast(text); } t.remove(); }
+  },
+  async netJoin(preset) {
+    const code = (preset || $('oCode').value || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 5);
+    if (code.length !== 5) return this.toast('請輸入 5 碼房號');
+    this.netStatus(`正在加入房間 <b class="code">${code}</b>…`);
+    try { await LC.Net.open('guest', code); }
+    catch (e) { return this.netStatus(this.netWhy(e)); }
+    this.netStatus(`已連上房間 <b class="code">${code}</b>，等待主持人選關卡…`);
+  },
+  netPartner(on) {
+    if (LC.Net.role === 'host') {
+      if (on) { this.toast('隊友加入了！'); LC.Audio.sfx('ready'); if (!this.run) { this.mode = 'net'; this.openSelect(); } }
+      else { this.toast('隊友離開了'); const w = document.getElementById('oWait'); if (w) w.textContent = '等待隊友加入…'; }
+    } else if (!on && this.run) this.toast('和主持人的連線中斷了');
+  },
+  netState(s) {
+    if (!s || typeof s !== 'object') return;
+    if (s.ph === 'lobby') { if (this.run && this.run.guest) { this.run = null; this.closeModal(); this.show('online'); } this.netStatus(`已連上主持人，等待選關中…`); return; }
+    if (!LC.REST[s.r] || !LC.REST[s.r].levels[s.li] || !s.k) return;
+    const r = this.run;
+    if (!r || !r.guest || r.rk !== s.r || r.li !== s.li || (s.ph === 'count' && r.phase === 'end')) { this.closeModal(); this.mode = 'net'; this.start(s.r, s.li, true); }
+    const run = this.run;
+    try { run.ks[0].apply(s.k); } catch (e) { return; }
+    if (s.ph === 'count') { run.phase = 'count'; run.count = s.c || 0; }
+    else if (s.ph === 'play') { if (run.phase === 'count') LC.Audio.sfx('go'); run.phase = 'play'; }
+    else if (s.ph === 'end' && run.phase !== 'end') { run.ks[0].over = true; this.checkEnd(); }
+  },
+
+  /* ---------- 彈窗 ---------- */
+  modal(title, html, btns) {
+    this.modalOpen = true;
+    $('modalBox').innerHTML = `<h2>${title}</h2>${html}<div class="mbtns">${btns.map((b, i) => `<button class="btn${i ? ' alt' : ''}" data-b="${i}">${b.t}</button>`).join('')}</div>`;
+    $('modal').hidden = false;
+    $('modalBox').querySelectorAll('[data-b]').forEach(el => { el.onclick = () => { LC.Audio.sfx('tap'); this.closeModal(); btns[+el.dataset.b].f(); }; });
+  },
+  closeModal() { this.modalOpen = false; $('modal').hidden = true; },
+  toast(msg) { const el = $('toast'); el.textContent = msg; el.hidden = false; el.style.animation = 'none'; void el.offsetWidth; el.style.animation = ''; clearTimeout(this.tt); this.tt = setTimeout(() => { el.hidden = true; }, 2200); },
+  titleArt() {
+    const c = $('tArt'), x = c.getContext('2d'); x.clearRect(0, 0, c.width, c.height);
+    LC.Art.cust(x, 0, 70, 200, 0.95, 'happy', 1); LC.Art.cust(x, 3, 270, 200, 0.95, 'ok', 2);
+    LC.Art.plate(x, ['bun', 'patty', 'cheese', 'lettuce'], 170, 150, 1.5, 'burger'); LC.Art.food(x, 'fries', 120, 186, 0.9); LC.Art.food(x, 'soda', 222, 182, 0.9, { fill: 1 });
+  },
+};
+})();
+
+</script>
+<script>LC.UI.init();</script>
+</body>
+</html>
